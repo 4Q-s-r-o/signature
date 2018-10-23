@@ -9,15 +9,11 @@ This is native flutter implementation, so it supports all platforms.
 In time of creation of this plugin, there was no available solution that had:
 * required performance on wide range of devices
 * ability to set canvas boundaries
-* ability to initialize using previously saved saved
+* ability to initialize using previously saved state
 
 ## Usage
 
 To use this plugin, add `signature` as a [dependency in your `pubspec.yaml` file](https://flutter.io/platform-plugins/).
-
-This plugin is able to handle checking and requesting permission automatically.\
-Currently implemented query params are dateFrom, dateTo, durationFrom, durationTo, name and number.\
-String params are queried using LIKE and '%' wildcard on both sides.
 
 ## Example
 
@@ -25,7 +21,7 @@ String params are queried using LIKE and '%' wildcard on both sides.
 // IMPORT PACKAGE
 import 'package:signature/signature.dart';
 
-// INITIALIZE. RESULT IS A WIDGET, SO IT CAN BE DIRECTLY USED IN YOUR WIDGET TREE 
+// INITIALIZE. RESULT IS A WIDGET, SO IT CAN BE DIRECTLY USED IN BUILD METHOD 
 var _signatureCanvas = Signature(
   width: 300,
   height: 300,
