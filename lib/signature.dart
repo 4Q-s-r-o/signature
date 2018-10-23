@@ -121,8 +121,8 @@ class SignatureState extends State<Signature> {
     RenderBox box = _painterKey.currentContext.findRenderObject();
     Offset o = box.globalToLocal(event.position);
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
-    if ((widget.width != null && o.dx > 0 && o.dx < widget.width) &&
-        (widget.height != null && o.dy > 0 && o.dy < widget.height)) {
+    if ((widget.width == null || o.dx > 0 && o.dx < widget.width) &&
+        (widget.height == null || o.dy > 0 && o.dy < widget.height)) {
       // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
       // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
       // LINK IT WITH PREVIOUS POINT

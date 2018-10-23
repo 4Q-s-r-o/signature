@@ -12,7 +12,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var _signatureCanvas = Signature(
-    width: 300,
     height: 300,
     backgroundColor: Colors.lightBlueAccent,
   );
