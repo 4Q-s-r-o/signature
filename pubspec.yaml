@@ -1,0 +1,19 @@
+name: signature
+description: A Flutter plugin providing performance optimized signature canvas with ability to set custom style, boundaries and initial state.
+version: 1.0.0
+author: 4Q Core Team <core@4q.sk>
+homepage: https://github.com/4Q-s-r-o/signature
+
+environment:
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  flutter: ">=0.6.0 <2.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
