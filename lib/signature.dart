@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -121,7 +120,6 @@ class SignatureState extends State<Signature> {
   void _addPoint(PointerEvent event, PointType type) {
     RenderBox box = _painterKey.currentContext.findRenderObject();
     Offset o = box.globalToLocal(event.position);
-    print('POINT. X: ${o.dx.round()} Y: ${o.dy.round()}');
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
     if ((widget.width != null && o.dx > 0 && o.dx < widget.width) &&
         (widget.height != null && o.dy > 0 && o.dy < widget.height)) {
@@ -187,7 +185,7 @@ class _SignaturePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter other) => true;
 
   Future<Uint8List> export() async {
-    var recorder = ui.PictureRecorder();
+    var recorder = PictureRecorder();
     var origin = Offset(0.0, 0.0);
     var paintBounds = Rect.fromPoints(
       _canvasSize.topLeft(origin),
