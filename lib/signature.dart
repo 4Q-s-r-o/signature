@@ -198,7 +198,9 @@ class _SignaturePainter extends CustomPainter {
       _canvasSize.width.round(),
       _canvasSize.height.round(),
     );
-    var bytes = await image.toByteData(format: ImageByteFormat.png);
+
+    final ui.Image result = await Future<ui.Image>.value(image);
+    var bytes = await result.toByteData(format: ImageByteFormat.png);
     return bytes.buffer.asUint8List();
   }
 }
