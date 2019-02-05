@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -122,7 +122,7 @@ class SignatureState extends State<Signature> {
     Offset o = box.globalToLocal(event.position);
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
     if ((widget.width == null || o.dx > 0 && o.dx < widget.width) &&
-        (widget.height == null || o.dy > 0 && o.dy < widget.height)) {
+      (widget.height == null || o.dy > 0 && o.dy < widget.height)) {
       // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
       // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
       // LINK IT WITH PREVIOUS POINT
@@ -185,7 +185,7 @@ class _SignaturePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter other) => true;
 
   Future<Uint8List> export() async {
-    var recorder = PictureRecorder();
+    var recorder = ui.PictureRecorder();
     var origin = Offset(0.0, 0.0);
     var paintBounds = Rect.fromPoints(
       _canvasSize.topLeft(origin),
@@ -194,13 +194,13 @@ class _SignaturePainter extends CustomPainter {
     var canvas = Canvas(recorder, paintBounds);
     paint(canvas, _canvasSize);
     var picture = recorder.endRecording();
-    var image = picture.toImage(
+    Future<ui.Image> image = picture.toImage(
       _canvasSize.width.round(),
       _canvasSize.height.round(),
     );
 
     final ui.Image result = await Future<ui.Image>.value(image);
-    var bytes = await result.toByteData(format: ImageByteFormat.png);
+    var bytes = await result.toByteData(format: ui.ImageByteFormat.png);
     return bytes.buffer.asUint8List();
   }
 }
