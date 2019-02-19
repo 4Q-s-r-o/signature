@@ -194,7 +194,7 @@ class _SignaturePainter extends CustomPainter {
     var canvas = Canvas(recorder, paintBounds);
     paint(canvas, _canvasSize);
     var picture = recorder.endRecording();
-    var image = picture.toImage(
+    var image = await picture.toImage(
       _canvasSize.width.round(),
       _canvasSize.height.round(),
     );
