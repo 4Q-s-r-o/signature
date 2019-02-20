@@ -194,10 +194,14 @@ class _SignaturePainter extends CustomPainter {
     var canvas = Canvas(recorder, paintBounds);
     paint(canvas, _canvasSize);
     var picture = recorder.endRecording();
-    var image = await picture.toImage(
+    //we are wrapping picture.toImage in Future.value because of change in flutter 1.2.0 (beta)
+    //flutter stable (1.0.0) however still returns Image not future.
+    //although await is only thing that is required it is not best practice to await something
+    //that is not Future
+    var image = await Future.value(picture.toImage(
       _canvasSize.width.round(),
       _canvasSize.height.round(),
-    );
+    ));
     var bytes = await image.toByteData(format: ImageByteFormat.png);
     return bytes.buffer.asUint8List();
   }
