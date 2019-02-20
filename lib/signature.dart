@@ -34,6 +34,20 @@ class Signature extends StatefulWidget {
     return await key.currentState.exportBytes();
   }
 
+  ///Check if canvas is empty (does not have signature)
+  ///return true if canvas is empty. If signature has been provided and then cleared by calling
+  ///clear method, returns true. Otherwise returns false
+  bool get isEmpty {
+    return key.currentState.isEmpty();
+  }
+
+  ///Check if canvas is not empty (does have signature)
+  ///return false if canvas is empty. If signature has been provided and then cleared by calling
+  ///clear method, returns false. Otherwise returns true
+  bool get isNotEmpty {
+    return !key.currentState.isEmpty();
+  }
+
   ///Clears the canvas.
   clear() {
     return key.currentState.clear();
@@ -58,6 +72,11 @@ class SignatureState extends State<Signature> {
   //CLEAR POINTS AND REBUILD. CANVAS WILL BE BLANK
   void clear() {
     setState(() => _points.clear());
+  }
+
+  //CHECK IF SIGNATURE IS EMPTY
+  bool isEmpty() {
+    return _points?.isEmpty ?? true;
   }
 
   //EXPORT DATA AS PNG AND RETURN BYTES

@@ -34,6 +34,10 @@ _signatureCanvas.clear();
 // EXPORT BYTES (EXPORTING FORMAT IS PNG)
 _signatureCanvas.exportBytes();
 
+// isEmpty/isNotEmpty CAN BE USED TO CHECK IF SIGNATURE HAS BEEN PROVIDED
+_signatureCanvas.isNotEmpty; //true if signature has been provided
+_signatureCanvas.isEmpty; //true if signature has NOT been provided
+
 // EXPORT POINTS (2D POINTS ROUGHLY REPRESENTING WHAT IS VISIBLE ON CANVAS)
 var exportedPoints = _signatureCanvas.exportPoints();
 

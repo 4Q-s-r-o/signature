@@ -40,20 +40,22 @@ class _MyAppState extends State<MyApp> {
                             icon: const Icon(Icons.check),
                             color: Colors.blue,
                             onPressed: () async {
-                              var data = await _signatureCanvas.exportBytes();
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                                    return Scaffold(
-                                      appBar: AppBar(),
-                                      body: Container(
-                                        color: Colors.grey[300],
-                                        child: Image.memory(data),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
+                              if (_signatureCanvas.isNotEmpty) {
+                                var data = await _signatureCanvas.exportBytes();
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                                      return Scaffold(
+                                        appBar: AppBar(),
+                                        body: Container(
+                                          color: Colors.grey[300],
+                                          child: Image.memory(data),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              }
                             },
                           ),
                           //CLEAR CANVAS
