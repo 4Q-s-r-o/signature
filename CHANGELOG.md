@@ -1,3 +1,7 @@
+## 1.1.0
+* Fixed breaking change in Picture.toImage in latest flutter
+* New properties isEmpty and isNotEmpty at Signature class for validation purposes
+
 ## 1.0.3
 
 * fixed bug where canvas was not writable in case of specific boundary setup
