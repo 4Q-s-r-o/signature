@@ -1,3 +1,7 @@
+## 2.0.0
+
+* Migration from ```android.support``` packages to ```androidx``` packages that allows this library to be used with flutter projects that use ```androidx```. If you need to stay on ```android.support``` for whatever reason, don't upgrade as it may break your build. [See more](https://flutter.io/docs/development/packages-and-plugins/androidx-compatibility).  
+
 ## 1.1.0
 * Fixed breaking change in Picture.toImage in latest flutter
 * New properties isEmpty and isNotEmpty at Signature class for validation purposes
