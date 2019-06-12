@@ -74,8 +74,8 @@ class SignatureState extends State<Signature> {
   //CLEAR POINTS AND REBUILD. CANVAS WILL BE BLANK
   void clear() {
     setState(() => _points.clear());
-    //NOTIFY OF CHANGE AFTER MOVEMENT IS DONE
-    widget.onChanged(_points);
+    //NOTIFY OF CHANGE AFTER SIGNATURE PAD CLEARED
+    if(widget.onChanged != null) widget.onChanged(_points);
   }
 
   //CHECK IF SIGNATURE IS EMPTY
@@ -107,7 +107,7 @@ class SignatureState extends State<Signature> {
         onPointerUp: (event){
           _addPoint(event, PointType.tap);
           //NOTIFY OF CHANGE AFTER MOVEMENT IS DONE
-          widget.onChanged(_points);
+          if(widget.onChanged != null) widget.onChanged(_points);
         },
         onPointerMove: (event) => _addPoint(event, PointType.move),
         child: RepaintBoundary(
