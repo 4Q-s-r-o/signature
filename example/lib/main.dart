@@ -14,6 +14,9 @@ class _MyAppState extends State<MyApp> {
   var _signatureCanvas = Signature(
     height: 300,
     backgroundColor: Colors.lightBlueAccent,
+    onChanged: (points) {
+      print(points);
+    },
   );
 
   @override

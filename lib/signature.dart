@@ -14,6 +14,7 @@ class Signature extends StatefulWidget {
     this.backgroundColor = Colors.grey,
     this.penColor = Colors.black,
     this.penStrokeWidth = 3.0,
+    this.onChanged,
   });
 
   final List<Point> points;
@@ -23,6 +24,7 @@ class Signature extends StatefulWidget {
   final Color penColor;
   final double penStrokeWidth;
   final GlobalKey<SignatureState> key = GlobalKey<SignatureState>();
+  final ValueChanged<List<Point>> onChanged;
 
   ///Returns collection of 2D points that represents current signature
   List<Point> exportPoints() {
@@ -72,6 +74,8 @@ class SignatureState extends State<Signature> {
   //CLEAR POINTS AND REBUILD. CANVAS WILL BE BLANK
   void clear() {
     setState(() => _points.clear());
+    //NOTIFY OF CHANGE AFTER SIGNATURE PAD CLEARED
+    if(widget.onChanged != null) widget.onChanged(_points);
   }
 
   //CHECK IF SIGNATURE IS EMPTY
@@ -100,7 +104,11 @@ class SignatureState extends State<Signature> {
       ),
       child: Listener(
         onPointerDown: (event) => _addPoint(event, PointType.tap),
-        onPointerUp: (event) => _addPoint(event, PointType.tap),
+        onPointerUp: (event){
+          _addPoint(event, PointType.tap);
+          //NOTIFY OF CHANGE AFTER MOVEMENT IS DONE
+          if(widget.onChanged != null) widget.onChanged(_points);
+        },
         onPointerMove: (event) => _addPoint(event, PointType.move),
         child: RepaintBoundary(
           child: CustomPaint(
