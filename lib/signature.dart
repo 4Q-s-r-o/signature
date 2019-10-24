@@ -1,126 +1,47 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-///Signature canvas. All parameters are optional. It expands by default. This behaviour can be
-///overridden using width and/or height parameters.
+/// Signature canvas. Controller is required, other parameters are optional. It expands by default.
+/// This behaviour can be overridden using width and/or height parameters.
 class Signature extends StatefulWidget {
   Signature({
-    this.points,
+    Key key,
+    @required this.controller,
+    this.backgroundColor = Colors.grey,
     this.width,
     this.height,
-    this.backgroundColor = Colors.grey,
-    this.penColor = Colors.black,
-    this.penStrokeWidth = 3.0,
-    this.onChanged,
-  });
+  })  : assert(controller != null),
+        super(key: key);
 
-  final List<Point> points;
+  final SignatureController controller;
   final double width;
   final double height;
   final Color backgroundColor;
-  final Color penColor;
-  final double penStrokeWidth;
-  final GlobalKey<SignatureState> key = GlobalKey<SignatureState>();
-  final ValueChanged<List<Point>> onChanged;
-
-  ///Returns collection of 2D points that represents current signature
-  List<Point> exportPoints() {
-    return key.currentState._points;
-  }
-
-  ///Exports canvas as png. Returns bytes.
-  Future<Uint8List> exportBytes() async {
-    return await key.currentState.exportBytes();
-  }
-
-  ///Check if canvas is empty (does not have signature)
-  ///return true if canvas is empty. If signature has been provided and then cleared by calling
-  ///clear method, returns true. Otherwise returns false
-  bool get isEmpty {
-    return key.currentState.isEmpty();
-  }
-
-  ///Check if canvas is not empty (does have signature)
-  ///return false if canvas is empty. If signature has been provided and then cleared by calling
-  ///clear method, returns false. Otherwise returns true
-  bool get isNotEmpty {
-    return !key.currentState.isEmpty();
-  }
-
-  ///Clears the canvas.
-  clear() {
-    return key.currentState.clear();
-  }
 
   @override
   State createState() => SignatureState();
 }
 
 class SignatureState extends State<Signature> {
-  GlobalKey _painterKey;
-  _SignaturePainter painter;
-  List<Point> _points;
-
-  @override
-  void initState() {
-    super.initState();
-    _painterKey = GlobalKey();
-    _points = widget.points ?? List<Point>();
-  }
-
-  //CLEAR POINTS AND REBUILD. CANVAS WILL BE BLANK
-  void clear() {
-    setState(() => _points.clear());
-    //NOTIFY OF CHANGE AFTER SIGNATURE PAD CLEARED
-    if(widget.onChanged != null) widget.onChanged(_points);
-  }
-
-  //CHECK IF SIGNATURE IS EMPTY
-  bool isEmpty() {
-    return _points?.isEmpty ?? true;
-  }
-
-  //EXPORT DATA AS PNG AND RETURN BYTES
-  Future<Uint8List> exportBytes() async {
-    return await painter.export();
-  }
-
   @override
   Widget build(BuildContext context) {
     var maxWidth = widget.width ?? double.infinity;
     var maxHeight = widget.height ?? double.infinity;
-    painter = _SignaturePainter(
-      _points,
-      widget.penColor,
-      widget.penStrokeWidth,
-    );
-    //SIGNATURE CANVAS
     var signatureCanvas = Container(
-      decoration: BoxDecoration(
-        color: widget.backgroundColor,
-      ),
+      decoration: BoxDecoration(color: widget.backgroundColor),
       child: Listener(
         onPointerDown: (event) => _addPoint(event, PointType.tap),
-        onPointerUp: (event){
-          _addPoint(event, PointType.tap);
-          //NOTIFY OF CHANGE AFTER MOVEMENT IS DONE
-          if(widget.onChanged != null) widget.onChanged(_points);
-        },
+        onPointerUp: (event) => _addPoint(event, PointType.tap),
         onPointerMove: (event) => _addPoint(event, PointType.move),
         child: RepaintBoundary(
           child: CustomPaint(
-            key: _painterKey,
-            painter: painter,
+            painter: _SignaturePainter(widget.controller.points, widget.controller.penColor, widget.controller.penStrokeWidth),
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: maxWidth,
-                minHeight: maxHeight,
-                maxWidth: maxWidth,
-                maxHeight: maxHeight,
-              ),
+              constraints: BoxConstraints(minWidth: maxWidth, minHeight: maxHeight, maxWidth: maxWidth, maxHeight: maxHeight),
             ),
           ),
         ),
@@ -129,35 +50,25 @@ class SignatureState extends State<Signature> {
 
     if (widget.width != null || widget.height != null) {
       //IF DOUNDARIES ARE DEFINED, USE LIMITED BOX
-      return Center(
-        child: LimitedBox(
-          maxWidth: maxWidth,
-          maxHeight: maxHeight,
-          child: signatureCanvas,
-        ),
-      );
+      return Center(child: LimitedBox(maxWidth: maxWidth, maxHeight: maxHeight, child: signatureCanvas));
     } else {
       //IF NO BOUNDARIES ARE DEFINED, USE EXPANDED
-      return Expanded(
-        child: signatureCanvas,
-      );
+      return Expanded(child: signatureCanvas);
     }
   }
 
   void _addPoint(PointerEvent event, PointType type) {
-    RenderBox box = _painterKey.currentContext.findRenderObject();
-    Offset o = box.globalToLocal(event.position);
+    Offset o = event.localPosition;
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
-    if ((widget.width == null || o.dx > 0 && o.dx < widget.width) &&
-        (widget.height == null || o.dy > 0 && o.dy < widget.height)) {
+    if ((widget.width == null || o.dx > 0 && o.dx < widget.width) && (widget.height == null || o.dy > 0 && o.dy < widget.height)) {
       // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
       // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
       // LINK IT WITH PREVIOUS POINT
-      if (_points.length != 0 && _isFar(o, _points.last.offset)) {
+      if (widget.controller.value.length != 0 && _isFar(o, widget.controller.value.last.offset)) {
         type = PointType.tap;
       }
       setState(() {
-        _points.add(Point(o, type));
+        widget.controller.addPoint(Point(o, type));
       });
     }
   }
@@ -177,7 +88,6 @@ class Point {
 }
 
 class _SignaturePainter extends CustomPainter {
-  Size _canvasSize;
   List<Point> _points;
   Paint _penStyle;
 
@@ -189,7 +99,6 @@ class _SignaturePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    _canvasSize = size;
     if (_points == null || _points.isEmpty) return;
     for (int i = 0; i < (_points.length - 1); i++) {
       if (_points[i + 1].type == PointType.move) {
@@ -210,26 +119,61 @@ class _SignaturePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter other) => true;
+}
 
-  Future<Uint8List> export() async {
-    var recorder = PictureRecorder();
-    var origin = Offset(0.0, 0.0);
-    var paintBounds = Rect.fromPoints(
-      _canvasSize.topLeft(origin),
-      _canvasSize.bottomRight(origin),
-    );
-    var canvas = Canvas(recorder, paintBounds);
-    paint(canvas, _canvasSize);
+
+class SignatureController extends ValueNotifier<List<Point>> {
+  final Color penColor;
+  final double penStrokeWidth;
+
+  SignatureController({List<Point> points, this.penColor = Colors.black, this.penStrokeWidth = 3.0}) : super(points ?? List<Point>());
+
+  List<Point> get points => value;
+
+  set points(List<Point> value) {
+    value = value.toList();
+  }
+
+  addPoint(Point point) {
+    value.add(point);
+    this.notifyListeners();
+  }
+
+  bool get isEmpty {
+    return value.length == 0;
+  }
+
+  bool get isNotEmpty {
+    return value.length > 0;
+  }
+
+  clear() {
+    value = List<Point>();
+  }
+
+  Future<ui.Image> toImage() async {
+    if (isEmpty) return null;
+
+    double minX = double.infinity, minY = double.infinity;
+    double maxX = 0, maxY = 0;
+    points.forEach((point) {
+      if (point.offset.dx < minX) minX = point.offset.dx;
+      if (point.offset.dy < minY) minY = point.offset.dy;
+      if (point.offset.dx > maxX) maxX = point.offset.dx;
+      if (point.offset.dy > maxY) maxY = point.offset.dy;
+    });
+
+    var recorder = ui.PictureRecorder();
+    var canvas = Canvas(recorder);
+    canvas.translate(-(minX - penStrokeWidth), -(minY - penStrokeWidth));
+    _SignaturePainter(points, penColor, penStrokeWidth).paint(canvas, null);
     var picture = recorder.endRecording();
-    //we are wrapping picture.toImage in Future.value because of change in flutter 1.2.0 (beta)
-    //flutter stable (1.0.0) however still returns Image not future.
-    //although await is only thing that is required it is not best practice to await something
-    //that is not Future
-    var image = await Future.value(picture.toImage(
-      _canvasSize.width.round(),
-      _canvasSize.height.round(),
-    ));
-    var bytes = await image.toByteData(format: ImageByteFormat.png);
+    return picture.toImage((maxX - minX + penStrokeWidth * 2).toInt(), (maxY - minY + penStrokeWidth * 2).toInt());
+  }
+
+  Future<Uint8List> toPngBytes() async {
+    var image = await toImage();
+    var bytes = await image.toByteData(format: ui.ImageByteFormat.png);
     return bytes.buffer.asUint8List();
   }
 }

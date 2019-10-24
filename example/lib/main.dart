@@ -11,71 +11,65 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var _signatureCanvas = Signature(
-    height: 300,
-    backgroundColor: Colors.lightBlueAccent,
-    onChanged: (points) {
-      print(points);
-    },
-  );
+  final SignatureController _controller = SignatureController(penStrokeWidth: 5, penColor: Colors.red);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() => print("Value changed"));
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Builder(
         builder: (context) => Scaffold(
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  //SIGNATURE CANVAS
-                  _signatureCanvas,
-                  //OK AND CLEAR BUTTONS
-                  Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        mainAxisSize: MainAxisSize.max,
-                        children: <Widget>[
-                          //SHOW EXPORTED IMAGE IN NEW ROUTE
-                          IconButton(
-                            icon: const Icon(Icons.check),
-                            color: Colors.blue,
-                            onPressed: () async {
-                              if (_signatureCanvas.isNotEmpty) {
-                                var data = await _signatureCanvas.exportBytes();
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      return Scaffold(
-                                        appBar: AppBar(),
-                                        body: Container(
-                                          color: Colors.grey[300],
-                                          child: Image.memory(data),
-                                        ),
-                                      );
-                                    },
-                                  ),
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              //SIGNATURE CANVAS
+              Signature(controller: _controller, height: 300, backgroundColor: Colors.lightBlueAccent),
+              //OK AND CLEAR BUTTONS
+              Container(
+                decoration: const BoxDecoration(color: Colors.black),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    //SHOW EXPORTED IMAGE IN NEW ROUTE
+                    IconButton(
+                      icon: const Icon(Icons.check),
+                      color: Colors.blue,
+                      onPressed: () async {
+                        if (_controller.isNotEmpty) {
+                          var data = await _controller.toPngBytes();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (BuildContext context) {
+                                return Scaffold(
+                                  appBar: AppBar(),
+                                  body: Center(child: Container(color: Colors.grey[300], child: Image.memory(data))),
                                 );
-                              }
-                            },
-                          ),
-                          //CLEAR CANVAS
-                          IconButton(
-                            icon: const Icon(Icons.clear),
-                            color: Colors.blue,
-                            onPressed: () {
-                              setState(() {
-                                return _signatureCanvas.clear();
-                              });
-                            },
-                          ),
-                        ],
-                      )),
-                ],
+                              },
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    //CLEAR CANVAS
+                    IconButton(
+                      icon: const Icon(Icons.clear),
+                      color: Colors.blue,
+                      onPressed: () {
+                        setState(() => _controller.clear());
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
+          ),
+        ),
       ),
     );
   }
