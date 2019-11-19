@@ -75,7 +75,7 @@ class SignatureState extends State<Signature> {
   void clear() {
     setState(() => _points.clear());
     //NOTIFY OF CHANGE AFTER SIGNATURE PAD CLEARED
-    if(widget.onChanged != null) widget.onChanged(_points);
+    if (widget.onChanged != null) widget.onChanged(_points);
   }
 
   //CHECK IF SIGNATURE IS EMPTY
@@ -104,10 +104,10 @@ class SignatureState extends State<Signature> {
       ),
       child: Listener(
         onPointerDown: (event) => _addPoint(event, PointType.tap),
-        onPointerUp: (event){
+        onPointerUp: (event) {
           _addPoint(event, PointType.tap);
           //NOTIFY OF CHANGE AFTER MOVEMENT IS DONE
-          if(widget.onChanged != null) widget.onChanged(_points);
+          if (widget.onChanged != null) widget.onChanged(_points);
         },
         onPointerMove: (event) => _addPoint(event, PointType.move),
         child: RepaintBoundary(
@@ -145,20 +145,22 @@ class SignatureState extends State<Signature> {
   }
 
   void _addPoint(PointerEvent event, PointType type) {
-    RenderBox box = _painterKey.currentContext.findRenderObject();
-    Offset o = box.globalToLocal(event.position);
-    //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
-    if ((widget.width == null || o.dx > 0 && o.dx < widget.width) &&
-        (widget.height == null || o.dy > 0 && o.dy < widget.height)) {
-      // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
-      // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
-      // LINK IT WITH PREVIOUS POINT
-      if (_points.length != 0 && _isFar(o, _points.last.offset)) {
-        type = PointType.tap;
+    if (_painterKey.currentContext != null) {
+      RenderBox box = _painterKey.currentContext.findRenderObject();
+      Offset o = box.globalToLocal(event.position);
+      //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
+      if ((widget.width == null || o.dx > 0 && o.dx < widget.width) &&
+          (widget.height == null || o.dy > 0 && o.dy < widget.height)) {
+        // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
+        // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
+        // LINK IT WITH PREVIOUS POINT
+        if (_points.length != 0 && _isFar(o, _points.last.offset)) {
+          type = PointType.tap;
+        }
+        setState(() {
+          _points.add(Point(o, type));
+        });
       }
-      setState(() {
-        _points.add(Point(o, type));
-      });
     }
   }
 

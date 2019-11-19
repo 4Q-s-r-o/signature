@@ -1,3 +1,6 @@
+## 2.0.1
+* Fixed null pointer in case that future was resolved after widget has been removed from tree on slower devices
+
 ## 2.0.0
 
 * Migration from ```android.support``` packages to ```androidx``` packages that allows this library to be used with flutter projects that use ```androidx```. If you need to stay on ```android.support``` for whatever reason, don't upgrade as it may break your build. [See more](https://flutter.io/docs/development/packages-and-plugins/androidx-compatibility).  
