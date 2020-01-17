@@ -21,33 +21,35 @@ To use this plugin, add `signature` as a [dependency in your `pubspec.yaml` file
 // IMPORT PACKAGE
 import 'package:signature/signature.dart';
 
+// Initialise a controller. It will contains signature points, stroke width and pen color.
+// It will allow you to interact with the widget
+final SignatureController _controller = SignatureController(penStrokeWidth: 5, penColor: Colors.red);
+
 // INITIALIZE. RESULT IS A WIDGET, SO IT CAN BE DIRECTLY USED IN BUILD METHOD 
 var _signatureCanvas = Signature(
+  controller: _controller,
   width: 300,
   height: 300,
   backgroundColor: Colors.lightBlueAccent,
 );
 
 // CLEAR CANVAS
-_signatureCanvas.clear();
+_controller.clear();
 
-// EXPORT BYTES (EXPORTING FORMAT IS PNG)
-_signatureCanvas.exportBytes();
+// EXPORT BYTES AS PNG
+// The exported image will be limited to the drawn area
+_controller.toPngBytes();
 
 // isEmpty/isNotEmpty CAN BE USED TO CHECK IF SIGNATURE HAS BEEN PROVIDED
-_signatureCanvas.isNotEmpty; //true if signature has been provided
-_signatureCanvas.isEmpty; //true if signature has NOT been provided
+_controller.isNotEmpty; //true if signature has been provided
+_controller.isEmpty; //true if signature has NOT been provided
 
 // EXPORT POINTS (2D POINTS ROUGHLY REPRESENTING WHAT IS VISIBLE ON CANVAS)
-var exportedPoints = _signatureCanvas.exportPoints();
+var exportedPoints = _controller.points;
 
-//EXPORTED POINTS CAN BE USED TO INITIALIZE PREVIOUS STATE VIA CONSTRUCTOR
-var _signatureCanvas = Signature(
-  points: exportedPoints,
-  width: 300,
-  height: 300,
-  backgroundColor: Colors.lightBlueAccent,
-);
+//EXPORTED POINTS CAN BE USED TO INITIALIZE PREVIOUS CONTROLLER
+final SignatureController _controller = SignatureController(points: exportedPoints);
+
 
 ```
 
