@@ -3,7 +3,7 @@
 * Fixed problems when writtting too fast
 * Fixed conflict between scrolling scroll container and drawing the signature
 
-Migration from 2.0.x:
+Migration from 2.x.x:
 * You have to provide SignatureController and use it to manipulate with data instead using widget itself. Api is almost same but it is now split between ``Signature`` widget and ``SignatureController``.
 * See updated [example](example). 
 
