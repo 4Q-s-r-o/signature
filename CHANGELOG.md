@@ -1,6 +1,6 @@
 ## 3.0.0
-* Merged awasome controller implementation from jeanmatthieud that solves many bugs in cases where widget is not available (braking change)
-* Fixed problems when writtting too fast
+* Merged awesome controller implementation from jeanmatthieud that solves many bugs in cases where widget is not available (braking change)
+* Fixed problems when writing too fast
 * Fixed conflict between scrolling scroll container and drawing the signature
 
 Migration from 2.x.x:
