@@ -1,3 +1,12 @@
+## 3.0.0
+* Merged awasome controller implementation from jeanmatthieud that solves many bugs in cases where widget is not available (braking change)
+* Fixed problems when writtting too fast
+* Fixed conflict between scrolling scroll container and drawing the signature
+
+Migration from 2.0.x:
+* You have to provide SignatureController and use it to manipulate with data instead using widget itself. Api is almost same but it is now split between ``Signature`` widget and ``SignatureController``.
+* See updated [example](example). 
+
 ## 2.0.1
 * Fixed null pointer in case that future was resolved after widget has been removed from tree on slower devices
 
