@@ -24,9 +24,14 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Builder(
         builder: (context) => Scaffold(
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          body: ListView(
             children: <Widget>[
+              Container(
+                height: 300,
+                child: Center(
+                  child: Text('Big container to test scrolling issues'),
+                ),
+              ),
               //SIGNATURE CANVAS
               Signature(controller: _controller, height: 300, backgroundColor: Colors.lightBlueAccent),
               //OK AND CLEAR BUTTONS
@@ -65,6 +70,12 @@ class _MyAppState extends State<MyApp> {
                       },
                     ),
                   ],
+                ),
+              ),
+              Container(
+                height: 300,
+                child: Center(
+                  child: Text('Big container to test scrolling issues'),
                 ),
               ),
             ],

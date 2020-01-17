@@ -31,22 +31,27 @@ class SignatureState extends State<Signature> {
   Widget build(BuildContext context) {
     var maxWidth = widget.width ?? double.infinity;
     var maxHeight = widget.height ?? double.infinity;
-    var signatureCanvas = Container(
-      decoration: BoxDecoration(color: widget.backgroundColor),
-      child: Listener(
-        onPointerDown: (event) => _addPoint(event, PointType.tap),
-        onPointerUp: (event) => _addPoint(event, PointType.tap),
-        onPointerMove: (event) => _addPoint(event, PointType.move),
-        child: RepaintBoundary(
-          child: CustomPaint(
-            painter: _SignaturePainter(widget.controller.points, widget.controller.penColor,
-                widget.controller.penStrokeWidth),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                  minWidth: maxWidth,
-                  minHeight: maxHeight,
-                  maxWidth: maxWidth,
-                  maxHeight: maxHeight),
+    var signatureCanvas = GestureDetector(
+      onVerticalDragUpdate: (DragUpdateDetails details) {
+          //NO-OP
+      },
+      child: Container(
+        decoration: BoxDecoration(color: widget.backgroundColor),
+        child: Listener(
+          onPointerDown: (event) => _addPoint(event, PointType.tap),
+          onPointerUp: (event) => _addPoint(event, PointType.tap),
+          onPointerMove: (event) => _addPoint(event, PointType.move),
+          child: RepaintBoundary(
+            child: CustomPaint(
+              painter: _SignaturePainter(widget.controller.points, widget.controller.penColor,
+                  widget.controller.penStrokeWidth),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                    minWidth: maxWidth,
+                    minHeight: maxHeight,
+                    maxWidth: maxWidth,
+                    maxHeight: maxHeight),
+              ),
             ),
           ),
         ),
