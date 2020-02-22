@@ -48,8 +48,7 @@ class SignatureState extends State<Signature> {
           onPointerMove: (event) => _addPoint(event, PointType.move),
           child: RepaintBoundary(
             child: CustomPaint(
-              painter: _SignaturePainter(widget.controller.points, widget.controller.penColor,
-                  widget.controller.penStrokeWidth),
+              painter: _SignaturePainter(widget.controller),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                     minWidth: maxWidth,
@@ -106,28 +105,29 @@ class Point {
 }
 
 class _SignaturePainter extends CustomPainter {
-  List<Point> _points;
+  SignatureController _controller;
   Paint _penStyle;
 
-  _SignaturePainter(this._points, Color penColor, double penStrokeWidth) {
+  _SignaturePainter(this._controller): super(repaint: _controller) {
     this._penStyle = Paint()
-      ..color = penColor
-      ..strokeWidth = penStrokeWidth;
+      ..color = _controller.penColor
+      ..strokeWidth = _controller.penStrokeWidth;
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (_points == null || _points.isEmpty) return;
-    for (int i = 0; i < (_points.length - 1); i++) {
-      if (_points[i + 1].type == PointType.move) {
+    var points = _controller.value;
+    if (points == null || points.isEmpty) return;
+    for (int i = 0; i < (points.length - 1); i++) {
+      if (points[i + 1].type == PointType.move) {
         canvas.drawLine(
-          _points[i].offset,
-          _points[i + 1].offset,
+          points[i].offset,
+          points[i + 1].offset,
           _penStyle,
         );
       } else {
         canvas.drawCircle(
-          _points[i].offset,
+          points[i].offset,
           2.0,
           _penStyle,
         );
@@ -184,7 +184,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     var recorder = ui.PictureRecorder();
     var canvas = Canvas(recorder);
     canvas.translate(-(minX - penStrokeWidth), -(minY - penStrokeWidth));
-    _SignaturePainter(points, penColor, penStrokeWidth).paint(canvas, null);
+    _SignaturePainter(this).paint(canvas, null);
     var picture = recorder.endRecording();
     return picture.toImage(
         (maxX - minX + penStrokeWidth * 2).toInt(), (maxY - minY + penStrokeWidth * 2).toInt());
