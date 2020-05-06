@@ -38,7 +38,7 @@ class SignatureState extends State<Signature> {
     var maxHeight = widget.height ?? double.infinity;
     var signatureCanvas = GestureDetector(
       onVerticalDragUpdate: (DragUpdateDetails details) {
-          //NO-OP
+        //NO-OP
       },
       child: Container(
         decoration: BoxDecoration(color: widget.backgroundColor),
@@ -48,8 +48,7 @@ class SignatureState extends State<Signature> {
           onPointerMove: (event) => _addPoint(event, PointType.move),
           child: RepaintBoundary(
             child: CustomPaint(
-              painter: _SignaturePainter(widget.controller.points, widget.controller.penColor,
-                  widget.controller.penStrokeWidth),
+              painter: _SignaturePainter(widget.controller),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                     minWidth: maxWidth,
@@ -72,6 +71,7 @@ class SignatureState extends State<Signature> {
       return Expanded(child: signatureCanvas);
     }
   }
+
   void _addPoint(PointerEvent event, PointType type) {
     Offset o = event.localPosition;
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
@@ -106,28 +106,29 @@ class Point {
 }
 
 class _SignaturePainter extends CustomPainter {
-  List<Point> _points;
+  SignatureController _controller;
   Paint _penStyle;
 
-  _SignaturePainter(this._points, Color penColor, double penStrokeWidth) {
+  _SignaturePainter(this._controller) : super(repaint: _controller) {
     this._penStyle = Paint()
-      ..color = penColor
-      ..strokeWidth = penStrokeWidth;
+      ..color = _controller.penColor
+      ..strokeWidth = _controller.penStrokeWidth;
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (_points == null || _points.isEmpty) return;
-    for (int i = 0; i < (_points.length - 1); i++) {
-      if (_points[i + 1].type == PointType.move) {
+    var points = _controller.value;
+    if (points == null || points.isEmpty) return;
+    for (int i = 0; i < (points.length - 1); i++) {
+      if (points[i + 1].type == PointType.move) {
         canvas.drawLine(
-          _points[i].offset,
-          _points[i + 1].offset,
+          points[i].offset,
+          points[i + 1].offset,
           _penStyle,
         );
       } else {
         canvas.drawCircle(
-          _points[i].offset,
+          points[i].offset,
           2.0,
           _penStyle,
         );
@@ -144,7 +145,11 @@ class SignatureController extends ValueNotifier<List<Point>> {
   final double penStrokeWidth;
   final Color exportBackgroundColor;
 
-  SignatureController({List<Point> points, this.penColor = Colors.black, this.penStrokeWidth = 3.0, this.exportBackgroundColor})
+  SignatureController(
+      {List<Point> points,
+      this.penColor = Colors.black,
+      this.penStrokeWidth = 3.0,
+      this.exportBackgroundColor})
       : super(points ?? List<Point>());
 
   List<Point> get points => value;
@@ -190,7 +195,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
       paint.color = exportBackgroundColor;
       canvas.drawPaint(paint);
     }
-    _SignaturePainter(points, penColor, penStrokeWidth).paint(canvas, null);
+    _SignaturePainter(this).paint(canvas, null);
     var picture = recorder.endRecording();
     return picture.toImage(
         (maxX - minX + penStrokeWidth * 2).toInt(), (maxY - minY + penStrokeWidth * 2).toInt());
