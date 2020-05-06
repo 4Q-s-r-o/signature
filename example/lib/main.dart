@@ -11,7 +11,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final SignatureController _controller = SignatureController(penStrokeWidth: 5, penColor: Colors.red);
+  final SignatureController _controller = SignatureController(
+    penStrokeWidth: 5,
+    penColor: Colors.red,
+    exportBackgroundColor: Colors.blue,
+  );
 
   @override
   void initState() {
@@ -33,7 +37,11 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
               //SIGNATURE CANVAS
-              Signature(controller: _controller, height: 300, backgroundColor: Colors.lightBlueAccent),
+              Signature(
+                controller: _controller,
+                height: 300,
+                backgroundColor: Colors.lightBlueAccent,
+              ),
               //OK AND CLEAR BUTTONS
               Container(
                 decoration: const BoxDecoration(color: Colors.black),
@@ -53,7 +61,9 @@ class _MyAppState extends State<MyApp> {
                               builder: (BuildContext context) {
                                 return Scaffold(
                                   appBar: AppBar(),
-                                  body: Center(child: Container(color: Colors.grey[300], child: Image.memory(data))),
+                                  body: Center(
+                                      child: Container(
+                                          color: Colors.grey[300], child: Image.memory(data))),
                                 );
                               },
                             ),

@@ -23,7 +23,11 @@ import 'package:signature/signature.dart';
 
 // Initialise a controller. It will contains signature points, stroke width and pen color.
 // It will allow you to interact with the widget
-final SignatureController _controller = SignatureController(penStrokeWidth: 5, penColor: Colors.red);
+final SignatureController _controller = SignatureController(
+    penStrokeWidth: 5,
+    penColor: Colors.red,
+    exportBackgroundColor: Colors.blue,
+);
 
 // INITIALIZE. RESULT IS A WIDGET, SO IT CAN BE DIRECTLY USED IN BUILD METHOD 
 var _signatureCanvas = Signature(
