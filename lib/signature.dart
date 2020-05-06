@@ -142,8 +142,9 @@ class _SignaturePainter extends CustomPainter {
 class SignatureController extends ValueNotifier<List<Point>> {
   final Color penColor;
   final double penStrokeWidth;
+  final Color exportBackgroundColor;
 
-  SignatureController({List<Point> points, this.penColor = Colors.black, this.penStrokeWidth = 3.0})
+  SignatureController({List<Point> points, this.penColor = Colors.black, this.penStrokeWidth = 3.0, this.exportBackgroundColor})
       : super(points ?? List<Point>());
 
   List<Point> get points => value;
@@ -184,6 +185,11 @@ class SignatureController extends ValueNotifier<List<Point>> {
     var recorder = ui.PictureRecorder();
     var canvas = Canvas(recorder);
     canvas.translate(-(minX - penStrokeWidth), -(minY - penStrokeWidth));
+    if (exportBackgroundColor != null) {
+      var paint = Paint();
+      paint.color = exportBackgroundColor;
+      canvas.drawPaint(paint);
+    }
     _SignaturePainter(points, penColor, penStrokeWidth).paint(canvas, null);
     var picture = recorder.endRecording();
     return picture.toImage(
