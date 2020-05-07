@@ -202,6 +202,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   Future<Uint8List> toPngBytes() async {
     var image = await toImage();
+    if(image == null) return null;
+    
     var bytes = await image.toByteData(format: ui.ImageByteFormat.png);
     return bytes.buffer.asUint8List();
   }
