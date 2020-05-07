@@ -1,6 +1,9 @@
+## 3.1.1
+* Fixed possible null pointer exception (Danvick Miller)
+
 ## 3.1.0
-* Fixed  bug repainting canvas after clear in some situations
-* Added possibility to set export background instead of default transparent
+* Fixed  bug repainting canvas after clear in some situations (Brian Garcia)
+* Added possibility to set export background instead of default transparent (dalosy-projecten-bv)
 
 ## 3.0.0
 * Merged awesome controller implementation from jeanmatthieud that solves many bugs in cases where widget is not available (braking change)
