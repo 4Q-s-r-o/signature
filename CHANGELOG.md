@@ -1,3 +1,6 @@
+## 3.1.2
+* Fixed not working points setter in ```SignatureController```
+
 ## 3.1.1
 * Fixed possible null pointer exception (Danvick Miller)
 
