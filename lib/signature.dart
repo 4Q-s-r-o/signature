@@ -153,8 +153,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   List<Point> get points => value;
 
-  set points(List<Point> value) {
-    value = value.toList();
+  set points(List<Point> points) {
+    this.value = points.toList();
   }
 
   addPoint(Point point) {
