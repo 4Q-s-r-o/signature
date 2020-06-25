@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:image/image.dart' as img;
 
 /// Signature canvas. Controller is required, other parameters are optional. It expands by default.
 /// This behaviour can be overridden using width and/or height parameters.
@@ -64,7 +66,10 @@ class SignatureState extends State<Signature> {
     if (widget.width != null || widget.height != null) {
       //IF DOUNDARIES ARE DEFINED, USE LIMITED BOX
       return Center(
-          child: LimitedBox(maxWidth: maxWidth, maxHeight: maxHeight, child: signatureCanvas));
+          child: LimitedBox(
+              maxWidth: maxWidth,
+              maxHeight: maxHeight,
+              child: signatureCanvas));
     } else {
       //IF NO BOUNDARIES ARE DEFINED, USE EXPANDED
       return Expanded(child: signatureCanvas);
@@ -196,17 +201,88 @@ class SignatureController extends ValueNotifier<List<Point>> {
     }
     _SignaturePainter(this).paint(canvas, null);
     var picture = recorder.endRecording();
-    return picture.toImage(
-        (maxX - minX + penStrokeWidth * 2).toInt(), (maxY - minY + penStrokeWidth * 2).toInt());
+    return picture.toImage((maxX - minX + penStrokeWidth * 2).toInt(),
+        (maxY - minY + penStrokeWidth * 2).toInt());
   }
 
   Future<Uint8List> toPngBytes() async {
-    var image = await toImage();
-    if (image == null) {
-      return null;
-    }
+    try {
+      var image = await toImage();
+      if (image == null) {
+        return null;
+      }
 
-    var bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    return bytes.buffer.asUint8List();
+      var bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+      return bytes.buffer.asUint8List();
+    } catch (e) {
+      return _toPngBytesForWeb();
+    }
+  }
+
+  //'image.toByteData' is not available for web. So we are use the package
+  // "image" to create a image which works on web too
+  Uint8List _toPngBytesForWeb() {
+    var pColor = img.getColor(penColor.red, penColor.green, penColor.blue);
+
+    Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
+    var bColor = img.getColor(
+        exportBackgroundColor.red,
+        exportBackgroundColor.green,
+        exportBackgroundColor.blue,
+        exportBackgroundColor.alpha.toInt());
+
+    double minX = double.infinity;
+    double maxX = 0;
+    double minY = double.infinity;
+    double maxY = 0;
+
+    points.forEach((point) {
+      minX = min(point.offset.dx, minX);
+      maxX = max(point.offset.dx, maxX);
+
+      minY = min(point.offset.dy, minY);
+      maxY = max(point.offset.dy, maxY);
+    });
+
+    //point translation
+    List<Point> translatedPoints = List();
+    points.forEach((point) {
+      translatedPoints.add(Point(
+          Offset(point.offset.dx - minX, point.offset.dy - minY), point.type));
+    });
+
+    var width = (maxX - minX + penStrokeWidth * 2).toInt();
+    var height = (maxY - minY + penStrokeWidth * 2).toInt();
+
+    // create the image with the given size
+    img.Image signatureImage = img.Image(width, height);
+    // set the image background color
+    // remove this for a transparent background
+    img.fill(signatureImage, bColor);
+
+    // read the drawing points list and draw the image
+    // it uses the same logic as the CustomPainter Paint function
+    for (int i = 0; i < translatedPoints.length - 1; i++) {
+      if (translatedPoints[i + 1].type == PointType.move) {
+        img.drawLine(
+            signatureImage,
+            translatedPoints[i].offset.dx.toInt(),
+            translatedPoints[i].offset.dy.toInt(),
+            translatedPoints[i + 1].offset.dx.toInt(),
+            translatedPoints[i + 1].offset.dy.toInt(),
+            pColor,
+            thickness: penStrokeWidth);
+      } else {
+        // draw the point to the image
+        img.fillCircle(
+            signatureImage,
+            translatedPoints[i].offset.dx.toInt(),
+            translatedPoints[i].offset.dy.toInt(),
+            penStrokeWidth.toInt(),
+            pColor);
+      }
+    }
+    // encode the image to PNG
+    return Uint8List.fromList(img.encodePng(signatureImage));
   }
 }
