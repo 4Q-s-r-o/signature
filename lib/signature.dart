@@ -248,7 +248,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     List<Point> translatedPoints = List();
     points.forEach((point) {
       translatedPoints.add(Point(
-          Offset(point.offset.dx - minX, point.offset.dy - minY), point.type));
+          Offset(point.offset.dx - minX + penStrokeWidth, point.offset.dy - minY + penStrokeWidth), point.type));
     });
 
     var width = (maxX - minX + penStrokeWidth * 2).toInt();
