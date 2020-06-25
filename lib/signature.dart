@@ -226,10 +226,10 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
     Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
     var bColor = img.getColor(
-        exportBackgroundColor.red,
-        exportBackgroundColor.green,
-        exportBackgroundColor.blue,
-        exportBackgroundColor.alpha.toInt());
+        backgroundColor.red,
+        backgroundColor.green,
+        backgroundColor.blue,
+        backgroundColor.alpha.toInt());
 
     double minX = double.infinity;
     double maxX = 0;
