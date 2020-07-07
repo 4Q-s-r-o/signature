@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image/image.dart' as img;
@@ -206,15 +207,14 @@ class SignatureController extends ValueNotifier<List<Point>> {
   }
 
   Future<Uint8List> toPngBytes() async {
-    try {
+    if (!kIsWeb) {
       var image = await toImage();
       if (image == null) {
         return null;
       }
-
       var bytes = await image.toByteData(format: ui.ImageByteFormat.png);
       return bytes.buffer.asUint8List();
-    } catch (e) {
+    } else {
       return _toPngBytesForWeb();
     }
   }
@@ -222,14 +222,12 @@ class SignatureController extends ValueNotifier<List<Point>> {
   //'image.toByteData' is not available for web. So we are use the package
   // "image" to create a image which works on web too
   Uint8List _toPngBytesForWeb() {
+    if (isEmpty) return null;
     var pColor = img.getColor(penColor.red, penColor.green, penColor.blue);
 
     Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
-    var bColor = img.getColor(
-        backgroundColor.red,
-        backgroundColor.green,
-        backgroundColor.blue,
-        backgroundColor.alpha.toInt());
+    var bColor = img.getColor(backgroundColor.red, backgroundColor.green,
+        backgroundColor.blue, backgroundColor.alpha.toInt());
 
     double minX = double.infinity;
     double maxX = 0;
@@ -248,7 +246,9 @@ class SignatureController extends ValueNotifier<List<Point>> {
     List<Point> translatedPoints = List();
     points.forEach((point) {
       translatedPoints.add(Point(
-          Offset(point.offset.dx - minX + penStrokeWidth, point.offset.dy - minY + penStrokeWidth), point.type));
+          Offset(point.offset.dx - minX + penStrokeWidth,
+              point.offset.dy - minY + penStrokeWidth),
+          point.type));
     });
 
     var width = (maxX - minX + penStrokeWidth * 2).toInt();
@@ -257,7 +257,6 @@ class SignatureController extends ValueNotifier<List<Point>> {
     // create the image with the given size
     img.Image signatureImage = img.Image(width, height);
     // set the image background color
-    // remove this for a transparent background
     img.fill(signatureImage, bColor);
 
     // read the drawing points list and draw the image
