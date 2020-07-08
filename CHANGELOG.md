@@ -1,3 +1,5 @@
+## 3.2.0
+* Added web support (export was not working in web previously) (leonardarnold)
 ## 3.1.2
 * Fixed not working points setter in ```SignatureController```
 
