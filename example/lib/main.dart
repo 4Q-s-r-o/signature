@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:signature/signature.dart';
 
 void main() => runApp(MyApp());
 
+/// example widget showing how to use signature widget
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
@@ -20,19 +22,19 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => print("Value changed"));
+    _controller.addListener(() => print('Value changed'));
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Builder(
-        builder: (context) => Scaffold(
+        builder: (BuildContext context) => Scaffold(
           body: ListView(
             children: <Widget>[
               Container(
                 height: 300,
-                child: Center(
+                child: const Center(
                   child: Text('Big container to test scrolling issues'),
                 ),
               ),
@@ -55,15 +57,18 @@ class _MyAppState extends State<MyApp> {
                       color: Colors.blue,
                       onPressed: () async {
                         if (_controller.isNotEmpty) {
-                          var data = await _controller.toPngBytes();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
+                          final Uint8List data = await _controller.toPngBytes();
+                          await Navigator.of(context).push(
+                            MaterialPageRoute<void>(
                               builder: (BuildContext context) {
                                 return Scaffold(
                                   appBar: AppBar(),
                                   body: Center(
-                                      child: Container(
-                                          color: Colors.grey[300], child: Image.memory(data))),
+                                    child: Container(
+                                      color: Colors.grey[300],
+                                      child: Image.memory(data),
+                                    ),
+                                  ),
                                 );
                               },
                             ),
@@ -84,7 +89,7 @@ class _MyAppState extends State<MyApp> {
               ),
               Container(
                 height: 300,
-                child: Center(
+                child: const Center(
                   child: Text('Big container to test scrolling issues'),
                 ),
               ),
