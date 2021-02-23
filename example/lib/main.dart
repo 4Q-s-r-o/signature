@@ -57,7 +57,8 @@ class _MyAppState extends State<MyApp> {
                       color: Colors.blue,
                       onPressed: () async {
                         if (_controller.isNotEmpty) {
-                          final Uint8List data = await _controller.toPngBytes();
+                          final Uint8List? data =
+                              await _controller.toPngBytes();
                           await Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder: (BuildContext context) {
@@ -66,7 +67,7 @@ class _MyAppState extends State<MyApp> {
                                   body: Center(
                                     child: Container(
                                       color: Colors.grey[300],
-                                      child: Image.memory(data),
+                                      child: Image.memory(data!),
                                     ),
                                   ),
                                 );
