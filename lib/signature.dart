@@ -54,12 +54,9 @@ class SignatureState extends State<Signature> {
       child: Container(
         decoration: BoxDecoration(color: widget.backgroundColor),
         child: Listener(
-          onPointerDown: (PointerDownEvent event) =>
-              _addPoint(event, PointType.tap),
-          onPointerUp: (PointerUpEvent event) =>
-              _addPoint(event, PointType.tap),
-          onPointerMove: (PointerMoveEvent event) =>
-              _addPoint(event, PointType.move),
+          onPointerDown: (PointerDownEvent event) => _addPoint(event, PointType.tap),
+          onPointerUp: (PointerUpEvent event) => _addPoint(event, PointType.tap),
+          onPointerMove: (PointerMoveEvent event) => _addPoint(event, PointType.move),
           child: RepaintBoundary(
             child: CustomPaint(
               painter: _SignaturePainter(widget.controller),
@@ -79,10 +76,8 @@ class SignatureState extends State<Signature> {
     if (widget.width != null || widget.height != null) {
       //IF DOUNDARIES ARE DEFINED, USE LIMITED BOX
       return Center(
-          child: LimitedBox(
-              maxWidth: maxWidth,
-              maxHeight: maxHeight,
-              child: signatureCanvas));
+        child: LimitedBox(maxWidth: maxWidth, maxHeight: maxHeight, child: signatureCanvas),
+      );
     } else {
       //IF NO BOUNDARIES ARE DEFINED, USE EXPANDED
       return Expanded(child: signatureCanvas);
@@ -200,8 +195,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
   List<Point> get points => value;
 
   /// setter for points representing signature on 2D canvas
-  set points(List<Point>? points) {
-    value = points ?? <Point>[];
+  set points(List<Point> points) {
+    value = points;
   }
 
   /// add point to point collection
@@ -257,8 +252,10 @@ class SignatureController extends ValueNotifier<List<Point>> {
     }
     _SignaturePainter(this).paint(canvas, Size.infinite);
     final ui.Picture picture = recorder.endRecording();
-    return picture.toImage((maxX - minX + penStrokeWidth * 2).toInt(),
-        (maxY - minY + penStrokeWidth * 2).toInt());
+    return picture.toImage(
+      (maxX - minX + penStrokeWidth * 2).toInt(),
+      (maxY - minY + penStrokeWidth * 2).toInt(),
+    );
   }
 
   /// convert canvas to dart:ui Image and then to PNG represented in Uint8List
@@ -268,8 +265,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
       if (image == null) {
         return null;
       }
-      final ByteData? bytes =
-          await image.toByteData(format: ui.ImageByteFormat.png);
+      final ByteData? bytes = await image.toByteData(format: ui.ImageByteFormat.png);
       return bytes?.buffer.asUint8List();
     } else {
       return _toPngBytesForWeb();
@@ -282,8 +278,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     if (isEmpty) {
       return null;
     }
-    final int pColor =
-        img.getColor(penColor.red, penColor.green, penColor.blue);
+    final int pColor = img.getColor(penColor.red, penColor.green, penColor.blue);
 
     final Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
     final int bColor = img.getColor(backgroundColor.red, backgroundColor.green,
@@ -305,8 +300,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     final List<Point> translatedPoints = <Point>[];
     for (Point point in points) {
       translatedPoints.add(Point(
-          Offset(point.offset.dx - minX + penStrokeWidth,
-              point.offset.dy - minY + penStrokeWidth),
+          Offset(point.offset.dx - minX + penStrokeWidth, point.offset.dy - minY + penStrokeWidth),
           point.type));
     }
 
@@ -332,12 +326,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
             thickness: penStrokeWidth);
       } else {
         // draw the point to the image
-        img.fillCircle(
-            signatureImage,
-            translatedPoints[i].offset.dx.toInt(),
-            translatedPoints[i].offset.dy.toInt(),
-            penStrokeWidth.toInt(),
-            pColor);
+        img.fillCircle(signatureImage, translatedPoints[i].offset.dx.toInt(),
+            translatedPoints[i].offset.dy.toInt(), penStrokeWidth.toInt(), pColor);
       }
     }
     // encode the image to PNG

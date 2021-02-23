@@ -1,3 +1,6 @@
+## 4.0.0-nullsafety
+* Pre release version containing support for dart null safety
+
 ## 3.2.0
 * Added web support (export was not working in web previously) (leonardarnold)
 ## 3.1.2
