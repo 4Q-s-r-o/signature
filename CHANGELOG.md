@@ -1,4 +1,4 @@
-#3.2.1
+## 3.2.1
 * Fixed strange dot at the end of the signature when having smaller pen stroke 
 
 ## 3.2.0
