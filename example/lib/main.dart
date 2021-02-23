@@ -14,7 +14,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final SignatureController _controller = SignatureController(
-    penStrokeWidth: 5,
+    penStrokeWidth: 1,
     penColor: Colors.red,
     exportBackgroundColor: Colors.blue,
   );

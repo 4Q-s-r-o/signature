@@ -159,7 +159,7 @@ class _SignaturePainter extends CustomPainter {
       } else {
         canvas.drawCircle(
           points[i].offset,
-          2.0,
+          _penStyle.strokeWidth / 2,
           _penStyle,
         );
       }
