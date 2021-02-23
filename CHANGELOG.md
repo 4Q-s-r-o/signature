@@ -1,3 +1,6 @@
+#3.2.1
+* Fixed strange dot at the end of the signature when having smaller pen stroke 
+
 ## 3.2.0
 * Added web support (export was not working in web previously) (leonardarnold)
 ## 3.1.2
