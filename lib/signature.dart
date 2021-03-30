@@ -14,22 +14,21 @@ import 'package:image/image.dart' as img;
 class Signature extends StatefulWidget {
   /// constructor
   const Signature({
-    @required this.controller,
-    Key key,
+    required this.controller,
+    Key? key,
     this.backgroundColor = Colors.grey,
     this.width,
     this.height,
-  })  : assert(controller != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// signature widget controller
   final SignatureController controller;
 
   /// signature widget width
-  final double width;
+  final double? width;
 
   /// signature widget height
-  final double height;
+  final double? height;
 
   /// signature widget background color
   final Color backgroundColor;
@@ -77,7 +76,8 @@ class SignatureState extends State<Signature> {
     if (widget.width != null || widget.height != null) {
       //IF DOUNDARIES ARE DEFINED, USE LIMITED BOX
       return Center(
-          child: LimitedBox(maxWidth: maxWidth, maxHeight: maxHeight, child: signatureCanvas));
+        child: LimitedBox(maxWidth: maxWidth, maxHeight: maxHeight, child: signatureCanvas),
+      );
     } else {
       //IF NO BOUNDARIES ARE DEFINED, USE EXPANDED
       return Expanded(child: signatureCanvas);
@@ -87,8 +87,8 @@ class SignatureState extends State<Signature> {
   void _addPoint(PointerEvent event, PointType type) {
     final Offset o = event.localPosition;
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
-    if ((widget.width == null || o.dx > 0 && o.dx < widget.width) &&
-        (widget.height == null || o.dy > 0 && o.dy < widget.height)) {
+    if ((widget.width == null || o.dx > 0 && o.dx < widget.width!) &&
+        (widget.height == null || o.dy > 0 && o.dy < widget.height!)) {
       // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
       // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
       // LINK IT WITH PREVIOUS POINT
@@ -132,19 +132,21 @@ class Point {
 }
 
 class _SignaturePainter extends CustomPainter {
-  _SignaturePainter(this._controller) : super(repaint: _controller) {
-    _penStyle = Paint()
+  _SignaturePainter(this._controller)
+      : _penStyle = Paint(),
+        super(repaint: _controller) {
+    _penStyle
       ..color = _controller.penColor
       ..strokeWidth = _controller.penStrokeWidth;
   }
 
   final SignatureController _controller;
-  Paint _penStyle;
+  final Paint _penStyle;
 
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(Canvas canvas, _) {
     final List<Point> points = _controller.value;
-    if (points == null || points.isEmpty) {
+    if (points.isEmpty) {
       return;
     }
     for (int i = 0; i < (points.length - 1); i++) {
@@ -174,7 +176,7 @@ class _SignaturePainter extends CustomPainter {
 class SignatureController extends ValueNotifier<List<Point>> {
   /// constructor
   SignatureController(
-      {List<Point> points,
+      {List<Point>? points,
       this.penColor = Colors.black,
       this.penStrokeWidth = 3.0,
       this.exportBackgroundColor})
@@ -187,14 +189,14 @@ class SignatureController extends ValueNotifier<List<Point>> {
   final double penStrokeWidth;
 
   /// background color to be used in exported png image
-  final Color exportBackgroundColor;
+  final Color? exportBackgroundColor;
 
   /// getter for points representing signature on 2D canvas
   List<Point> get points => value;
 
   /// setter for points representing signature on 2D canvas
   set points(List<Point> points) {
-    value = points.toList();
+    value = points;
   }
 
   /// add point to point collection
@@ -219,7 +221,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
   }
 
   /// convert to
-  Future<ui.Image> toImage() async {
+  Future<ui.Image?> toImage() async {
     if (isEmpty) {
       return null;
     }
@@ -245,32 +247,34 @@ class SignatureController extends ValueNotifier<List<Point>> {
     final ui.Canvas canvas = Canvas(recorder)
       ..translate(-(minX - penStrokeWidth), -(minY - penStrokeWidth));
     if (exportBackgroundColor != null) {
-      final ui.Paint paint = Paint()..color = exportBackgroundColor;
+      final ui.Paint paint = Paint()..color = exportBackgroundColor!;
       canvas.drawPaint(paint);
     }
-    _SignaturePainter(this).paint(canvas, null);
+    _SignaturePainter(this).paint(canvas, Size.infinite);
     final ui.Picture picture = recorder.endRecording();
     return picture.toImage(
-        (maxX - minX + penStrokeWidth * 2).toInt(), (maxY - minY + penStrokeWidth * 2).toInt());
+      (maxX - minX + penStrokeWidth * 2).toInt(),
+      (maxY - minY + penStrokeWidth * 2).toInt(),
+    );
   }
 
   /// convert canvas to dart:ui Image and then to PNG represented in Uint8List
-  Future<Uint8List> toPngBytes() async {
+  Future<Uint8List?> toPngBytes() async {
     if (!kIsWeb) {
-      final ui.Image image = await toImage();
+      final ui.Image? image = await toImage();
       if (image == null) {
         return null;
       }
-      final ByteData bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      return bytes.buffer.asUint8List();
+      final ByteData? bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+      return bytes?.buffer.asUint8List();
     } else {
       return _toPngBytesForWeb();
     }
   }
 
-  // 'image.toByteData' is not available for web. So we are use the package
-  // 'image' to create a image which works on web too
-  Uint8List _toPngBytesForWeb() {
+  // 'image.toByteData' is not available for web. So we are using the package
+  // 'image' to create an image which works on web too
+  Uint8List? _toPngBytesForWeb() {
     if (isEmpty) {
       return null;
     }

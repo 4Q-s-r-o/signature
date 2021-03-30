@@ -1,3 +1,6 @@
+## 4.0.0-nullsafety
+* Pre release version containing support for dart null safety (tiloc)
+
 ## 3.2.1
 * Fixed strange dot at the end of the signature when having smaller pen stroke 
 
