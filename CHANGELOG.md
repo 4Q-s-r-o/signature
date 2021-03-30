@@ -1,3 +1,6 @@
+## 4.0.0
+* Stable release of null safety
+
 ## 4.0.0-nullsafety
 * Pre release version containing support for dart null safety (tiloc)
 
