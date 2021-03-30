@@ -12,7 +12,6 @@ analyzer:
   exclude:
     - 'lib/main.reflectable.dart'
     - 'lib/generated_plugin_registrant.dart'
-    - 'lib/generated/**'
 linter:
   rules:
     - always_declare_return_types

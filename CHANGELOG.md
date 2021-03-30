@@ -1,3 +1,6 @@
+## 4.0.1
+* Fixed pud.dev analysis issues
+
 ## 4.0.0
 * Stable release of null safety
 
