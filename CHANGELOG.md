@@ -1,3 +1,6 @@
+## 4.0.2
+* Fixed pud.dev analysis issues
+
 ## 4.0.1
 * Fixed pud.dev analysis issues
 
