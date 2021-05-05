@@ -17,8 +17,8 @@ class _MyAppState extends State<MyApp> {
     penStrokeWidth: 1,
     penColor: Colors.red,
     exportBackgroundColor: Colors.blue,
-    startedDrawing: () => print('StartedDrawing called!'),
-    stoppedDrawing: () => print('StoppedDrawing called!'),
+    onDrawStart: () => print('onDrawStart called!'),
+    onDrawEnd: () => print('onDrawEnd called!'),
   );
 
   @override
@@ -59,7 +59,8 @@ class _MyAppState extends State<MyApp> {
                       color: Colors.blue,
                       onPressed: () async {
                         if (_controller.isNotEmpty) {
-                          final Uint8List? data = await _controller.toPngBytes();
+                          final Uint8List? data =
+                              await _controller.toPngBytes();
                           if (data != null) {
                             await Navigator.of(context).push(
                               MaterialPageRoute<void>(
