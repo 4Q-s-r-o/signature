@@ -54,14 +54,14 @@ class SignatureState extends State<Signature> {
       child: Container(
         decoration: BoxDecoration(color: widget.backgroundColor),
         child: Listener(
-          onPointerDown: (PointerDownEvent event) => _addPoint(
-            event,
-            PointType.tap,
-          ),
-          onPointerUp: (PointerUpEvent event) => _addPoint(
-            event,
-            PointType.tap,
-          ),
+          onPointerDown: (PointerDownEvent event) {
+            widget.controller.startedDrawing?.call();
+            _addPoint(event, PointType.tap);
+          },
+          onPointerUp: (PointerUpEvent event) {
+            _addPoint(event, PointType.tap);
+            widget.controller.stoppedDrawing?.call();
+          },
           onPointerMove: (PointerMoveEvent event) => _addPoint(
             event,
             PointType.move,
@@ -188,12 +188,14 @@ class _SignaturePainter extends CustomPainter {
 /// provides signature manipulation functions (export, clear)
 class SignatureController extends ValueNotifier<List<Point>> {
   /// constructor
-  SignatureController(
-      {List<Point>? points,
+  SignatureController({
+    List<Point>? points,
       this.penColor = Colors.black,
       this.penStrokeWidth = 3.0,
-      this.exportBackgroundColor})
-      : super(points ?? <Point>[]);
+    this.exportBackgroundColor,
+    this.startedDrawing,
+    this.stoppedDrawing,
+  }) : super(points ?? <Point>[]);
 
   /// color of a signature line
   final Color penColor;
@@ -204,6 +206,11 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// background color to be used in exported png image
   final Color? exportBackgroundColor;
 
+  /// callback to notify when drawing has started
+  VoidCallback? startedDrawing;
+
+  /// callback to notify when drawing has stopped
+  VoidCallback? stoppedDrawing;
   /// getter for points representing signature on 2D canvas
   List<Point> get points => value;
 

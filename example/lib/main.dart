@@ -17,6 +17,8 @@ class _MyAppState extends State<MyApp> {
     penStrokeWidth: 1,
     penColor: Colors.red,
     exportBackgroundColor: Colors.blue,
+    startedDrawing: () => print('StartedDrawing called!'),
+    stoppedDrawing: () => print('StoppedDrawing called!'),
   );
 
   @override
