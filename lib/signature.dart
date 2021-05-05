@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image/image.dart' as img;
@@ -43,6 +44,9 @@ class SignatureState extends State<Signature> {
   /// with straight line.
   bool _isOutsideDrawField = false;
 
+  /// Active pointer to prevent multitouch drawing
+  int? activePointerId;
+
   @override
   Widget build(BuildContext context) {
     final double maxWidth = widget.width ?? double.infinity;
@@ -54,31 +58,40 @@ class SignatureState extends State<Signature> {
       child: Container(
         decoration: BoxDecoration(color: widget.backgroundColor),
         child: Listener(
-          onPointerDown: (PointerDownEvent event) {
-            widget.controller.onDrawStart?.call();
-            _addPoint(event, PointType.tap);
-          },
-          onPointerUp: (PointerUpEvent event) {
-            _addPoint(event, PointType.tap);
-            widget.controller.onDrawEnd?.call();
-          },
-          onPointerMove: (PointerMoveEvent event) => _addPoint(
-            event,
-            PointType.move,
-          ),
-          child: RepaintBoundary(
-            child: CustomPaint(
-              painter: _SignaturePainter(widget.controller),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                    minWidth: maxWidth,
-                    minHeight: maxHeight,
-                    maxWidth: maxWidth,
-                    maxHeight: maxHeight),
+            onPointerDown: (PointerDownEvent event) {
+              if (activePointerId == null || activePointerId == event.pointer) {
+                activePointerId = event.pointer;
+                widget.controller.onDrawStart?.call();
+                _addPoint(event, PointType.tap);
+              }
+            },
+            onPointerUp: (PointerUpEvent event) {
+              if (activePointerId == event.pointer) {
+                _addPoint(event, PointType.tap);
+                widget.controller.onDrawEnd?.call();
+                activePointerId = null;
+              }
+            },
+            onPointerMove: (PointerMoveEvent event) {
+              if (activePointerId == event.pointer) {
+                _addPoint(
+                  event,
+                  PointType.move,
+                );
+              }
+            },
+            child: RepaintBoundary(
+              child: CustomPaint(
+                painter: _SignaturePainter(widget.controller),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                      minWidth: maxWidth,
+                      minHeight: maxHeight,
+                      maxWidth: maxWidth,
+                      maxHeight: maxHeight),
+                ),
               ),
-            ),
-          ),
-        ),
+            )),
       ),
     );
 
