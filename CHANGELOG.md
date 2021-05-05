@@ -1,3 +1,7 @@
+## 4.1.0
+* Added ``onDrawStart`` and ``onDrawEnd`` callbacks (LukasLiebl)
+* Fixed weird multitouch behaviour
+
 ## 4.0.2
 * Fixed pud.dev analysis issues
 
