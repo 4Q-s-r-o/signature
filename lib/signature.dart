@@ -72,6 +72,13 @@ class SignatureState extends State<Signature> {
                 activePointerId = null;
               }
             },
+            onPointerCancel: (PointerCancelEvent event) {
+              if (activePointerId == event.pointer) {
+                _addPoint(event, PointType.tap);
+                widget.controller.onDrawEnd?.call();
+                activePointerId = null;
+              }
+            },
             onPointerMove: (PointerMoveEvent event) {
               if (activePointerId == event.pointer) {
                 _addPoint(

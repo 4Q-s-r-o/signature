@@ -1,3 +1,6 @@
+## 4.1.1
+* Fixed bug when drawing is cancelled without calling onPointerUp when user touches app bat while drawing (ChannelYu)
+
 ## 4.1.0
 * Added ``onDrawStart`` and ``onDrawEnd`` callbacks (LukasLiebl)
 * Fixed weird multitouch behaviour
