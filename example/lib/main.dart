@@ -81,6 +81,20 @@ class _MyAppState extends State<MyApp> {
                         }
                       },
                     ),
+                    IconButton(
+                      icon: const Icon(Icons.undo),
+                      color: Colors.blue,
+                      onPressed: () {
+                        setState(() => _controller.undo());
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.redo),
+                      color: Colors.blue,
+                      onPressed: () {
+                        setState(() => _controller.redo());
+                      },
+                    ),
                     //CLEAR CANVAS
                     IconButton(
                       icon: const Icon(Icons.clear),
