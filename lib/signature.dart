@@ -112,8 +112,8 @@ class SignatureState extends State<Signature> {
         ),
       );
     } else {
-      //IF NO BOUNDARIES ARE DEFINED, USE EXPANDED
-      return Expanded(child: signatureCanvas);
+      //IF NO BOUNDARIES ARE DEFINED, RETURN THE WIDGET AS IS
+      return signatureCanvas;
     }
   }
 
