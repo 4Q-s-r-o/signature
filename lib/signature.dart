@@ -81,10 +81,8 @@ class SignatureState extends State<Signature> {
             },
             onPointerMove: (PointerMoveEvent event) {
               if (activePointerId == event.pointer) {
-                _addPoint(
-                  event,
-                  PointType.move,
-                );
+                _addPoint(event, PointType.move);
+                widget.controller.onDrawMove?.call();
               }
             },
             child: RepaintBoundary(
@@ -214,6 +212,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     this.penStrokeWidth = 3.0,
     this.exportBackgroundColor,
     this.onDrawStart,
+    this.onDrawMove,
     this.onDrawEnd,
   }) : super(points ?? <Point>[]);
 
@@ -228,6 +227,9 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// callback to notify when drawing has started
   VoidCallback? onDrawStart;
+
+  /// callback to notify when the pointer was moved while drawing.
+  VoidCallback? onDrawMove;
 
   /// callback to notify when drawing has stopped
   VoidCallback? onDrawEnd;
