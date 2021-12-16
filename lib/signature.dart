@@ -8,6 +8,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image/image.dart' as img;
+import 'package:signature/signature_editor.dart';
 
 /// signature canvas. Controller is required, other parameters are optional.
 /// widget/canvas expands to maximum by default.
@@ -69,6 +70,7 @@ class SignatureState extends State<Signature> {
               if (activePointerId == event.pointer) {
                 _addPoint(event, PointType.tap);
                 widget.controller.onDrawEnd?.call();
+                SignatureAction.addAction(widget.controller.points);
                 activePointerId = null;
               }
             },
@@ -76,6 +78,7 @@ class SignatureState extends State<Signature> {
               if (activePointerId == event.pointer) {
                 _addPoint(event, PointType.tap);
                 widget.controller.onDrawEnd?.call();
+                SignatureAction.addAction(widget.controller.points);
                 activePointerId = null;
               }
             },
@@ -260,6 +263,12 @@ class SignatureController extends ValueNotifier<List<Point>> {
   void clear() {
     value = <Point>[];
   }
+
+  /// reverse previous action
+  void undo() => SignatureAction.undo(this);
+  
+  /// restore actions that have been undo
+  void redo() => SignatureAction.redo(this);
 
   /// convert to
   Future<ui.Image?> toImage() async {
