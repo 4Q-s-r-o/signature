@@ -8,7 +8,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image/image.dart' as img;
-import 'package:signature/signature_editor.dart';
 
 /// signature canvas. Controller is required, other parameters are optional.
 /// widget/canvas expands to maximum by default.
@@ -69,16 +68,16 @@ class SignatureState extends State<Signature> {
             onPointerUp: (PointerUpEvent event) {
               if (activePointerId == event.pointer) {
                 _addPoint(event, PointType.tap);
+                widget.controller.pushCurrentStateToUndoStack();
                 widget.controller.onDrawEnd?.call();
-                SignatureAction.addAction(widget.controller.points);
                 activePointerId = null;
               }
             },
             onPointerCancel: (PointerCancelEvent event) {
               if (activePointerId == event.pointer) {
                 _addPoint(event, PointType.tap);
+                widget.controller.pushCurrentStateToUndoStack();
                 widget.controller.onDrawEnd?.call();
-                SignatureAction.addAction(widget.controller.points);
                 activePointerId = null;
               }
             },
@@ -238,6 +237,12 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// getter for points representing signature on 2D canvas
   List<Point> get points => value;
 
+  /// stack-like list of point to save user's latest action
+  final List<List<Point>> _latestActions = <List<Point>>[];
+
+  /// stack-like list that use to save points when user undo the signature
+  final List<List<Point>> _revertedActions = <List<Point>>[];
+
   /// setter for points representing signature on 2D canvas
   set points(List<Point> points) {
     value = points;
@@ -247,6 +252,14 @@ class SignatureController extends ValueNotifier<List<Point>> {
   void addPoint(Point point) {
     value.add(point);
     notifyListeners();
+  }
+
+  /// REMEMBERS CURRENT CANVAS STATE IN UNDO STACK
+  void pushCurrentStateToUndoStack() {
+    _latestActions.add(<Point>[...points]);
+    //CLEAR ANY UNDO-ED ACTIONS. IF USER UNDO-ED ANYTHING HE ALREADY MADE
+    // ANOTHER CHANGE AND LEFT THAT OLD PATH.
+    _revertedActions.clear();
   }
 
   /// check if canvas is empty (opposite of isNotEmpty method for convenience)
@@ -262,13 +275,38 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// clear the canvas
   void clear() {
     value = <Point>[];
+    _latestActions.clear();
+    _revertedActions.clear();
   }
 
-  /// reverse previous action
-  void undo() => SignatureAction.undo(this);
-  
-  /// restore actions that have been undo
-  void redo() => SignatureAction.redo(this);
+  /// It will remove last action from [_latestActions].
+  /// The last action will be saved to [_revertedActions]
+  /// that will be used to do redo-ing.
+  /// Then, it will modify the real points with the last action.
+  void undo() {
+    if (_latestActions.isNotEmpty) {
+      final List<Point> lastAction = _latestActions.removeLast();
+      _revertedActions.add(<Point>[...lastAction]);
+      if (_latestActions.isNotEmpty) {
+        points = <Point>[..._latestActions.last];
+        return;
+      }
+      points = <Point>[];
+      notifyListeners();
+    }
+  }
+
+  /// It will remove last reverted actions and add it into [_latestActions]
+  /// Then, it will modify the real points with the last reverted action.
+  void redo() {
+    if (_revertedActions.isNotEmpty) {
+      final List<Point> lastRevertedAction = _revertedActions.removeLast();
+      _latestActions.add(<Point>[...lastRevertedAction]);
+      points = <Point>[...lastRevertedAction];
+      notifyListeners();
+      return;
+    }
+  }
 
   /// convert to
   Future<ui.Image?> toImage() async {
