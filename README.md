@@ -11,6 +11,13 @@ In time of creation of this plugin, there was no available solution that had:
 * ability to set canvas boundaries
 * ability to initialize using previously saved state
 
+## Migration to 5.0.0+
+* This version no longer wraps ```Signature``` in ```Expanded``` widget if you are using it without specifying dimensions
+* This removes error ```Incorrect use of ParentDataWidget```, see [this issue](https://github.com/4Q-s-r-o/signature/issues/49) for more information.
+* If you are passing dimensions to widget, you do not have to change anything.
+* If you are using widget without dimensions inside ```Row```, ```Column``` or ```Flex``` widgets, you have to wrap ```Signature``` inside ```Expanded``` yourself.
+* If you are using widget without dimensions, but not inside mentioned widgets you do not have change anything and error should dissapear from your logs :)
+
 ## Usage
 
 To use this plugin, add `signature` as a [dependency in your `pubspec.yaml` file](https://flutter.io/platform-plugins/).

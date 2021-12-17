@@ -1,3 +1,8 @@
+## 5.0.0
+* Undo/Redo support (munyaaa)
+* onDrawMove callback support (h7x4ABk3g)
+* Fixed ```Incorrect use of ParentDataWidget``` error in console under some circumstances. (h7x4ABk3g)
+
 ## 4.1.1
 * Fixed bug when drawing is cancelled without calling onPointerUp when user touches app bat while drawing (ChannelYu)
 
