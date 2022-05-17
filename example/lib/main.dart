@@ -16,6 +16,7 @@ class _MyAppState extends State<MyApp> {
     penStrokeWidth: 1,
     penColor: Colors.red,
     exportBackgroundColor: Colors.blue,
+    exportPenColor: Colors.black,
     onDrawStart: () => print('onDrawStart called!'),
     onDrawEnd: () => print('onDrawEnd called!'),
   );

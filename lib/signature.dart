@@ -165,11 +165,11 @@ class Point {
 }
 
 class _SignaturePainter extends CustomPainter {
-  _SignaturePainter(this._controller)
+  _SignaturePainter(this._controller, {Color? penColor})
       : _penStyle = Paint(),
         super(repaint: _controller) {
     _penStyle
-      ..color = _controller.penColor
+      ..color = penColor != null ? penColor : _controller.penColor
       ..strokeWidth = _controller.penStrokeWidth;
   }
 
@@ -213,6 +213,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     this.penColor = Colors.black,
     this.penStrokeWidth = 3.0,
     this.exportBackgroundColor,
+    this.exportPenColor,
     this.onDrawStart,
     this.onDrawMove,
     this.onDrawEnd,
@@ -226,6 +227,9 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// background color to be used in exported png image
   final Color? exportBackgroundColor;
+
+  /// color of a ginature line to be used in exported png image
+  final Color? exportPenColor;
 
   /// callback to notify when drawing has started
   VoidCallback? onDrawStart;
@@ -340,7 +344,10 @@ class SignatureController extends ValueNotifier<List<Point>> {
       final ui.Paint paint = Paint()..color = exportBackgroundColor!;
       canvas.drawPaint(paint);
     }
-    _SignaturePainter(this).paint(canvas, Size.infinite);
+    _SignaturePainter(this, penColor: exportPenColor).paint(
+      canvas,
+      Size.infinite,
+    );
     final ui.Picture picture = recorder.endRecording();
     return picture.toImage(
       (maxX - minX + penStrokeWidth * 2).toInt(),
@@ -371,9 +378,9 @@ class SignatureController extends ValueNotifier<List<Point>> {
       return null;
     }
     final int pColor = img.getColor(
-      penColor.red,
-      penColor.green,
-      penColor.blue,
+      exportPenColor != null ? exportPenColor!.red : penColor.red,
+      exportPenColor != null ? exportPenColor!.green : penColor.green,
+      exportPenColor != null ? exportPenColor!.blue : penColor.blue,
     );
 
     final Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
