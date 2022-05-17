@@ -1,5 +1,6 @@
 ## 5.0.1
 * If widget was used without dimensions user could draw outside the box. 
+* Added exportPenColor
 
 ## 5.0.0
 * Undo/Redo support (munyaaa)
