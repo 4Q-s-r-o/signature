@@ -47,6 +47,9 @@ class SignatureState extends State<Signature> {
   /// Active pointer to prevent multitouch drawing
   int? activePointerId;
 
+  /// Real widget size
+  Size? screenSize;
+
   @override
   Widget build(BuildContext context) {
     final double maxWidth = widget.width ?? double.infinity;
@@ -117,11 +120,18 @@ class SignatureState extends State<Signature> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    screenSize = MediaQuery.of(context).size;
+  }
+
   void _addPoint(PointerEvent event, PointType type) {
     final Offset o = event.localPosition;
+
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
-    if ((widget.width == null || o.dx > 0 && o.dx < widget.width!) &&
-        (widget.height == null || o.dy > 0 && o.dy < widget.height!)) {
+    if ((screenSize?.width == null || o.dx > 0 && o.dx < screenSize!.width) &&
+        (screenSize?.height == null || o.dy > 0 && o.dy < screenSize!.height)) {
       // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
       // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
       // LINK IT WITH PREVIOUS POINT
