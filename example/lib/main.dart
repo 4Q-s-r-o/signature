@@ -41,27 +41,11 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
               //SIGNATURE CANVAS
-              Row(
-                children: [
-                  Expanded(child: Text("Citizen Signature")),
-                  Flexible(
-                      flex: 2,
-                      child: Signature(
-                        controller: SignatureController(
-                          penStrokeWidth: 5,
-                          penColor: Colors.black,
-                          exportBackgroundColor: Colors.blue,
-                        ),
-                        height: 300,
-                        backgroundColor: Colors.grey[300]!,
-                      ))
-                ],
+              Signature(
+                controller: _controller,
+                height: 300,
+                backgroundColor: Colors.lightBlueAccent,
               ),
-              // Signature(
-              //   controller: _controller,
-              //   height: 300,
-              //   backgroundColor: Colors.lightBlueAccent,
-              // ),
               //OK AND CLEAR BUTTONS
               Container(
                 decoration: const BoxDecoration(color: Colors.black),
