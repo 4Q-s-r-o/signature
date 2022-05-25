@@ -135,7 +135,6 @@ class SignatureState extends State<Signature> {
       // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
       // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
       // LINK IT WITH PREVIOUS POINT
-
       PointType t = type;
       if (_isOutsideDrawField) {
         t = PointType.tap;
@@ -143,7 +142,7 @@ class SignatureState extends State<Signature> {
       setState(() {
         //IF USER WAS OUTSIDE OF CANVAS WE WILL RESET THE HELPER VARIABLE AS HE HAS RETURNED
         _isOutsideDrawField = false;
-        widget.controller.addPoint(Point(o, t));
+        widget.controller.addPoint(Point(o, t, event.pressure));
       });
     } else {
       //NOTE: USER LEFT THE CANVAS!!! WE WILL SET HELPER VARIABLE
@@ -165,10 +164,11 @@ enum PointType {
 /// one point on canvas represented by offset and type
 class Point {
   /// constructor
-  Point(this.offset, this.type);
+  Point(this.offset, this.type, this.pressure);
 
   /// x and y value on 2D canvas
   Offset offset;
+  double pressure;
 
   /// type of user display finger movement
   PointType type;
@@ -417,7 +417,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
             point.offset.dx - minX + penStrokeWidth,
             point.offset.dy - minY + penStrokeWidth,
           ),
-          point.type));
+          point.type,
+          point.pressure));
     }
 
     final int width = (maxX - minX + penStrokeWidth * 2).toInt();
