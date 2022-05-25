@@ -194,6 +194,7 @@ class _SignaturePainter extends CustomPainter {
     }
     for (int i = 0; i < (points.length - 1); i++) {
       if (points[i + 1].type == PointType.move) {
+        _penStyle.strokeWidth *= points[i].pressure;
         canvas.drawLine(
           points[i].offset,
           points[i + 1].offset,
@@ -202,7 +203,7 @@ class _SignaturePainter extends CustomPainter {
       } else {
         canvas.drawCircle(
           points[i].offset,
-          _penStyle.strokeWidth / 2,
+          _penStyle.strokeWidth / 2 * points[i].pressure,
           _penStyle,
         );
       }
