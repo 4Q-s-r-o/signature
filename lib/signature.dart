@@ -203,7 +203,7 @@ class _SignaturePainter extends CustomPainter {
       } else {
         canvas.drawCircle(
           points[i].offset,
-          _penStyle.strokeWidth / 2 * points[i].pressure,
+          (_penStyle.strokeWidth / 2) * points[i].pressure,
           _penStyle,
         );
       }
@@ -326,7 +326,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
   }
 
   /// convert to
-  Future<ui.Image?> toImage() async {
+  Future<ui.Image?> toImage({int width = 0, int height = 0}) async {
     if (isEmpty) {
       return null;
     }
@@ -361,8 +361,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
     );
     final ui.Picture picture = recorder.endRecording();
     return picture.toImage(
-      (maxX - minX + penStrokeWidth * 2).toInt(),
-      (maxY - minY + penStrokeWidth * 2).toInt(),
+      width == 0  ? (maxX - minX + penStrokeWidth * 2).toInt() : width,
+      height == 0 ?(maxY - minY + penStrokeWidth * 2).toInt()  : height
     );
   }
 
