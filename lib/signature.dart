@@ -50,10 +50,19 @@ class SignatureState extends State<Signature> {
   /// Real widget size
   Size? screenSize;
 
+  late double maxWidth;
+  late double maxHeight;
+
+  @override
+  void initState() {
+    super.initState();
+
+    maxWidth = widget.width ?? double.infinity;
+    maxHeight = widget.height ?? double.infinity;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final double maxWidth = widget.width ?? double.infinity;
-    final double maxHeight = widget.height ?? double.infinity;
     final GestureDetector signatureCanvas = GestureDetector(
       onVerticalDragUpdate: (DragUpdateDetails details) {
         //NO-OP
@@ -130,9 +139,9 @@ class SignatureState extends State<Signature> {
     final Offset o = event.localPosition;
 
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
-    if ((screenSize?.width == null || o.dx > 0 && o.dx < screenSize!.width) &&
-        (screenSize?.height == null || o.dy > 0 && o.dy < screenSize!.height)) {
-      // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
+    if ((screenSize?.width == null || o.dx > 0 && o.dx < maxWidth) &&
+        (screenSize?.height == null || o.dy > 0 && o.dy < maxHeight)) {
+      // IF USER LEFT THE BOUNDARY AND ALSO RETURNED BACK
       // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
       // LINK IT WITH PREVIOUS POINT
 
