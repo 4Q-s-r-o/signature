@@ -135,7 +135,6 @@ class SignatureState extends State<Signature> {
       // IF USER LEFT THE BOUNDARY AND AND ALSO RETURNED BACK
       // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
       // LINK IT WITH PREVIOUS POINT
-
       PointType t = type;
       if (_isOutsideDrawField) {
         t = PointType.tap;
@@ -143,7 +142,7 @@ class SignatureState extends State<Signature> {
       setState(() {
         //IF USER WAS OUTSIDE OF CANVAS WE WILL RESET THE HELPER VARIABLE AS HE HAS RETURNED
         _isOutsideDrawField = false;
-        widget.controller.addPoint(Point(o, t));
+        widget.controller.addPoint(Point(o, t, event.pressure));
       });
     } else {
       //NOTE: USER LEFT THE CANVAS!!! WE WILL SET HELPER VARIABLE
@@ -165,10 +164,11 @@ enum PointType {
 /// one point on canvas represented by offset and type
 class Point {
   /// constructor
-  Point(this.offset, this.type);
+  Point(this.offset, this.type, this.pressure);
 
   /// x and y value on 2D canvas
   Offset offset;
+  double pressure;
 
   /// type of user display finger movement
   PointType type;
@@ -194,6 +194,7 @@ class _SignaturePainter extends CustomPainter {
     }
     for (int i = 0; i < (points.length - 1); i++) {
       if (points[i + 1].type == PointType.move) {
+        _penStyle.strokeWidth *= points[i].pressure;
         canvas.drawLine(
           points[i].offset,
           points[i + 1].offset,
@@ -202,7 +203,7 @@ class _SignaturePainter extends CustomPainter {
       } else {
         canvas.drawCircle(
           points[i].offset,
-          _penStyle.strokeWidth / 2,
+          (_penStyle.strokeWidth / 2) * points[i].pressure,
           _penStyle,
         );
       }
@@ -325,7 +326,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
   }
 
   /// convert to
-  Future<ui.Image?> toImage() async {
+  Future<ui.Image?> toImage({int width = 0, int height = 0}) async {
     if (isEmpty) {
       return null;
     }
@@ -360,8 +361,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
     );
     final ui.Picture picture = recorder.endRecording();
     return picture.toImage(
-      (maxX - minX + penStrokeWidth * 2).toInt(),
-      (maxY - minY + penStrokeWidth * 2).toInt(),
+      width == 0  ? (maxX - minX + penStrokeWidth * 2).toInt() : width,
+      height == 0 ?(maxY - minY + penStrokeWidth * 2).toInt()  : height
     );
   }
 
@@ -417,7 +418,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
             point.offset.dx - minX + penStrokeWidth,
             point.offset.dy - minY + penStrokeWidth,
           ),
-          point.type));
+          point.type,
+          point.pressure));
     }
 
     final int width = (maxX - minX + penStrokeWidth * 2).toInt();
