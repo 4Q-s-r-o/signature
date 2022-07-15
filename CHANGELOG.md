@@ -1,3 +1,7 @@
+## 5.1.0
+* Fixed broken outside drawing to left and right sides (madsane29)
+* Dynamic pressure support (KiritoDv)
+
 ## 5.0.1
 * If widget was used without dimensions user could draw outside the box. 
 * Added exportPenColor

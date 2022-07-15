@@ -52,7 +52,10 @@ class SignatureState extends State<Signature> {
   /// Real widget size
   Size? screenSize;
 
+  /// Max width of canvas
   late double maxWidth;
+
+  /// Max height of canvas
   late double maxHeight;
 
   @override
@@ -140,9 +143,16 @@ class SignatureState extends State<Signature> {
   void _addPoint(PointerEvent event, PointType type) {
     final Offset o = event.localPosition;
 
+    // IF WIDGET IS USED WITHOUT DIMENSIONS, WE WILL FALLBACK TO SCREENSIZE
+    // DIMENSIONS
+    final double _maxSafeWidth =
+        maxWidth == double.infinity ? screenSize!.width : maxWidth;
+    final double _maxSafeHeight =
+        maxHeight == double.infinity ? screenSize!.height : maxHeight;
+
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
-    if ((screenSize?.width == null || o.dx > 0 && o.dx < maxWidth) &&
-        (screenSize?.height == null || o.dy > 0 && o.dy < maxHeight)) {
+    if ((screenSize?.width == null || o.dx > 0 && o.dx < _maxSafeWidth) &&
+        (screenSize?.height == null || o.dy > 0 && o.dy < _maxSafeHeight)) {
       // IF USER LEFT THE BOUNDARY AND ALSO RETURNED BACK
       // IN ONE MOVE, RETYPE IT AS TAP, AS WE DO NOT WANT TO
       // LINK IT WITH PREVIOUS POINT
