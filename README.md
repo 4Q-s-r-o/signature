@@ -63,6 +63,8 @@ final SignatureController _controller = SignatureController(points: exportedPoin
 
 
 ```
+![Example image](example.gif)
+
 
 ## Contribution and Support
 
