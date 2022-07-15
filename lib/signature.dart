@@ -4,9 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image/image.dart' as img;
 
 /// signature canvas. Controller is required, other parameters are optional.
@@ -18,6 +16,7 @@ class Signature extends StatefulWidget {
     required this.controller,
     Key? key,
     this.backgroundColor = Colors.grey,
+    this.dynamicPressureSupported = false,
     this.width,
     this.height,
   }) : super(key: key);
@@ -33,6 +32,9 @@ class Signature extends StatefulWidget {
 
   /// signature widget background color
   final Color backgroundColor;
+
+  /// support dynamic pressure for width (if has support for it)
+  final bool dynamicPressureSupported;
 
   @override
   State createState() => SignatureState();
@@ -142,7 +144,11 @@ class SignatureState extends State<Signature> {
       setState(() {
         //IF USER WAS OUTSIDE OF CANVAS WE WILL RESET THE HELPER VARIABLE AS HE HAS RETURNED
         _isOutsideDrawField = false;
-        widget.controller.addPoint(Point(o, t, event.pressure));
+        widget.controller.addPoint(Point(
+          o,
+          t,
+          widget.dynamicPressureSupported ? event.pressure : 1.0,
+        ));
       });
     } else {
       //NOTE: USER LEFT THE CANVAS!!! WE WILL SET HELPER VARIABLE
@@ -168,6 +174,8 @@ class Point {
 
   /// x and y value on 2D canvas
   Offset offset;
+
+  /// pressure that user applied
   double pressure;
 
   /// type of user display finger movement
@@ -361,9 +369,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
     );
     final ui.Picture picture = recorder.endRecording();
     return picture.toImage(
-      width == 0  ? (maxX - minX + penStrokeWidth * 2).toInt() : width,
-      height == 0 ?(maxY - minY + penStrokeWidth * 2).toInt()  : height
-    );
+        width == 0 ? (maxX - minX + penStrokeWidth * 2).toInt() : width,
+        height == 0 ? (maxY - minY + penStrokeWidth * 2).toInt() : height);
   }
 
   /// convert canvas to dart:ui Image and then to PNG represented in Uint8List
