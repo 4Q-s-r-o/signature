@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:signature/signature.dart';
 
 void main() => runApp(MyApp());
@@ -25,6 +26,58 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _controller.addListener(() => print('Value changed'));
+  }
+
+  Future<void> exportImage(BuildContext context) async {
+    if (_controller.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('No content')));
+      return;
+    }
+
+    final Uint8List? data = await _controller.toPngBytes();
+    if (data == null) {
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: Center(
+              child: Container(
+                color: Colors.grey[300],
+                child: Image.memory(data),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> exportSVG(BuildContext context) async {
+    if (_controller.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('No content')));
+      return;
+    }
+
+    final SvgPicture data = _controller.toSVG()!;
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: Center(
+              child: Container(color: Colors.grey[300], child: data),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -55,31 +108,14 @@ class _MyAppState extends State<MyApp> {
                   children: <Widget>[
                     //SHOW EXPORTED IMAGE IN NEW ROUTE
                     IconButton(
-                      icon: const Icon(Icons.check),
+                      icon: const Icon(Icons.image),
                       color: Colors.blue,
-                      onPressed: () async {
-                        if (_controller.isNotEmpty) {
-                          final Uint8List? data =
-                              await _controller.toPngBytes();
-                          if (data != null) {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (BuildContext context) {
-                                  return Scaffold(
-                                    appBar: AppBar(),
-                                    body: Center(
-                                      child: Container(
-                                        color: Colors.grey[300],
-                                        child: Image.memory(data),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            );
-                          }
-                        }
-                      },
+                      onPressed: () => exportImage(context),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.polyline),
+                      color: Colors.blue,
+                      onPressed: () => exportSVG(context),
                     ),
                     IconButton(
                       icon: const Icon(Icons.undo),
