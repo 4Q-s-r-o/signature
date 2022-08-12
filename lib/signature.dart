@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart' as svg;
 import 'package:image/image.dart' as img;
 
 /// signature canvas. Controller is required, other parameters are optional.
@@ -307,16 +307,58 @@ class SignatureController extends ValueNotifier<List<Point>> {
   }
 
   /// check if canvas is empty (opposite of isNotEmpty method for convenience)
-  bool get isEmpty {
-    return value.isEmpty;
-  }
+  bool get isEmpty => value.isEmpty;
 
   /// check if canvas is not empty (opposite of isEmpty method for convenience)
-  bool get isNotEmpty {
-    return value.isNotEmpty;
-  }
+  bool get isNotEmpty => value.isNotEmpty;
 
-  /// clear the canvas
+  /// The biggest x value for all points.
+  /// Will return `null` if there are no points.
+  double? get maxXValue =>
+      isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(max);
+
+  /// The biggest y value for all points.
+  /// Will return `null` if there are no points.
+  double? get maxYValue =>
+      isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(max);
+
+  /// The smallest x value for all points.
+  /// Will return `null` if there are no points.
+  double? get minXValue =>
+      isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(min);
+
+  /// The smallest y value for all points.
+  /// Will return `null` if there are no points.
+  double? get minYValue =>
+      isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(min);
+
+  /// Calculates a default height based on existing points.
+  /// Will return `null` if there are no points.
+  int? get defaultHeight =>
+      isEmpty ? null : (maxYValue! - minYValue! + penStrokeWidth * 2).toInt();
+
+  /// Calculates a default width based on existing points.
+  /// Will return `null` if there are no points.
+  int? get defaultWidth =>
+      isEmpty ? null : (maxXValue! - minXValue! + penStrokeWidth * 2).toInt();
+
+  /// Calculates a default width based on existing points.
+  /// Will return `null` if there are no points.
+ List<Point>? _translatePoints(List<Point> points) =>
+  isEmpty
+    ? null
+    : points.map((Point p) =>
+        Point(
+          Offset(
+            p.offset.dx - minXValue! + penStrokeWidth,
+            p.offset.dy - minYValue! + penStrokeWidth,
+          ),
+          p.type,
+          p.pressure
+        )
+      ).toList();
+
+  /// Clear the canvas
   void clear() {
     value = <Point>[];
     _latestActions.clear();
@@ -352,32 +394,17 @@ class SignatureController extends ValueNotifier<List<Point>> {
     }
   }
 
-  /// convert to
-  Future<ui.Image?> toImage({int width = 0, int height = 0}) async {
+  /// Convert to an [Image].
+  /// Will return `null` if there are no points.
+  Future<ui.Image?> toImage({int? width, int? height}) async {
     if (isEmpty) {
       return null;
     }
 
-    double minX = double.infinity, minY = double.infinity;
-    double maxX = 0, maxY = 0;
-    for (Point point in points) {
-      if (point.offset.dx < minX) {
-        minX = point.offset.dx;
-      }
-      if (point.offset.dy < minY) {
-        minY = point.offset.dy;
-      }
-      if (point.offset.dx > maxX) {
-        maxX = point.offset.dx;
-      }
-      if (point.offset.dy > maxY) {
-        maxY = point.offset.dy;
-      }
-    }
-
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final ui.Canvas canvas = Canvas(recorder)
-      ..translate(-(minX - penStrokeWidth), -(minY - penStrokeWidth));
+      ..translate(
+          -(minXValue! - penStrokeWidth), -(minYValue! - penStrokeWidth));
     if (exportBackgroundColor != null) {
       final ui.Paint paint = Paint()..color = exportBackgroundColor!;
       canvas.drawPaint(paint);
@@ -387,69 +414,50 @@ class SignatureController extends ValueNotifier<List<Point>> {
       Size.infinite,
     );
     final ui.Picture picture = recorder.endRecording();
-    return picture.toImage(
-        width == 0 ? (maxX - minX + penStrokeWidth * 2).toInt() : width,
-        height == 0 ? (maxY - minY + penStrokeWidth * 2).toInt() : height);
+    return picture.toImage(width ?? defaultWidth!, height ?? defaultHeight!);
   }
 
-  /// convert canvas to dart:ui Image and then to PNG represented in Uint8List
+  /// convert canvas to dart:ui [Image] and then to PNG represented in [Uint8List]
+  /// Will return `null` if there are no points.
   Future<Uint8List?> toPngBytes() async {
-    if (!kIsWeb) {
-      final ui.Image? image = await toImage();
-      if (image == null) {
-        return null;
-      }
-      final ByteData? bytes = await image.toByteData(
-        format: ui.ImageByteFormat.png,
-      );
-      return bytes?.buffer.asUint8List();
-    } else {
+    if (kIsWeb) {
       return _toPngBytesForWeb();
     }
+
+    final ui.Image? image = await toImage();
+
+    if (image == null) {
+      return null;
+    }
+
+    final ByteData? bytes = await image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+    return bytes?.buffer.asUint8List();
   }
 
-  // 'image.toByteData' is not available for web. So we are using the package
-  // 'image' to create an image which works on web too
+  /// 'image.toByteData' is not available for web. So we are using the package
+  /// 'image' to create an image which works on web too.
+  /// Will return `null` if there are no points.
   Uint8List? _toPngBytesForWeb() {
     if (isEmpty) {
       return null;
     }
+
     final int pColor = img.getColor(
-      exportPenColor != null ? exportPenColor!.red : penColor.red,
-      exportPenColor != null ? exportPenColor!.green : penColor.green,
-      exportPenColor != null ? exportPenColor!.blue : penColor.blue,
+      exportPenColor?.red ?? penColor.red,
+      exportPenColor?.green ?? penColor.green,
+      exportPenColor?.blue ?? penColor.blue,
     );
 
     final Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
     final int bColor = img.getColor(backgroundColor.red, backgroundColor.green,
         backgroundColor.blue, backgroundColor.alpha.toInt());
 
-    double minX = double.infinity;
-    double maxX = 0;
-    double minY = double.infinity;
-    double maxY = 0;
+    final List<Point> translatedPoints = _translatePoints(points)!;
 
-    for (Point point in points) {
-      minX = min(point.offset.dx, minX);
-      maxX = max(point.offset.dx, maxX);
-      minY = min(point.offset.dy, minY);
-      maxY = max(point.offset.dy, maxY);
-    }
-
-    //point translation
-    final List<Point> translatedPoints = <Point>[];
-    for (Point point in points) {
-      translatedPoints.add(Point(
-          Offset(
-            point.offset.dx - minX + penStrokeWidth,
-            point.offset.dy - minY + penStrokeWidth,
-          ),
-          point.type,
-          point.pressure));
-    }
-
-    final int width = (maxX - minX + penStrokeWidth * 2).toInt();
-    final int height = (maxY - minY + penStrokeWidth * 2).toInt();
+    final int width = defaultWidth!;
+    final int height = defaultHeight!;
 
     // create the image with the given size
     final img.Image signatureImage = img.Image(width, height);
@@ -482,4 +490,42 @@ class SignatureController extends ValueNotifier<List<Point>> {
     // encode the image to PNG
     return Uint8List.fromList(img.encodePng(signatureImage));
   }
+
+  /// Export the current content to a raw SVG string.
+  /// Will return `null` if there are no points.
+  String? toRawSVG({int? width, int? height}) {
+    if (isEmpty) {
+      return null;
+    }
+
+    String colorToHex(Color c) =>
+        '#${c.value.toRadixString(16).padLeft(8, '0')}';
+
+    String formatPoint(Point p) =>
+        '${p.offset.dx.toStringAsFixed(2)},${p.offset.dy.toStringAsFixed(2)}';
+
+    final String polylines = <String>[
+      for (final List<Point> stroke in _latestActions)
+        '<polyline '
+            'fill="none" '
+            'stroke="${colorToHex(penColor)}" '
+            'points="${_translatePoints(stroke)!.map(formatPoint).join(' ')}" '
+            '/>'
+    ].join('\n');
+
+    width ??= defaultWidth;
+    height ??= defaultHeight;
+
+    return '<svg '
+        'viewBox="0 0 $width $height" '
+        'xmlns="http://www.w3.org/2000/svg"'
+        '>\n$polylines\n</svg>';
+  }
+
+  /// Export the current content to a SVG graphic.
+  /// Will return `null` if there are no points.
+  svg.SvgPicture? toSVG({int? width, int? height}) =>
+    isEmpty
+      ? null
+      : svg.SvgPicture.string(toRawSVG(width: width, height: height)!);
 }
