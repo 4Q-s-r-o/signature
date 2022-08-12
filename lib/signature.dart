@@ -345,19 +345,17 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// Calculates a default width based on existing points.
   /// Will return `null` if there are no points.
- List<Point>? _translatePoints(List<Point> points) =>
-  isEmpty
-    ? null
-    : points.map((Point p) =>
-        Point(
-          Offset(
-            p.offset.dx - minXValue! + penStrokeWidth,
-            p.offset.dy - minYValue! + penStrokeWidth,
-          ),
-          p.type,
-          p.pressure
-        )
-      ).toList();
+  List<Point>? _translatePoints(List<Point> points) => isEmpty
+      ? null
+      : points
+          .map((Point p) => Point(
+              Offset(
+                p.offset.dx - minXValue! + penStrokeWidth,
+                p.offset.dy - minYValue! + penStrokeWidth,
+              ),
+              p.type,
+              p.pressure))
+          .toList();
 
   /// Clear the canvas
   void clear() {
@@ -410,6 +408,19 @@ class SignatureController extends ValueNotifier<List<Point>> {
       final ui.Paint paint = Paint()..color = exportBackgroundColor!;
       canvas.drawPaint(paint);
     }
+    if (width != null || height != null) {
+      assert(((width ?? defaultWidth!) - defaultWidth!) >= 0.0, 'Exported width cannot be smaller than actual width');
+      assert(((height ?? defaultHeight!) - defaultHeight!) >= 0.0, 'Exported height cannot be smaller than actual height');
+      //IF WIDTH OR HEIGHT IS SPECIFIED WE NEED TO CENTER DRAWING
+      //WE WILL MOVE THE DRAWING BY HALF OF THE REMAINING SPACE IF
+      //IF DIMENSION IS NOT SPECIFIED WE WILL DEFAULT TO ACTUAL
+      //SIZE OF THE DRAWING HENCE THE DIFFERENCE WILL BE ZERO
+      //AND DRAWING WILL NOT MOVE IN THAT DIRECTION
+      canvas.translate(
+        ((width ?? defaultWidth!) - defaultWidth!).toDouble() / 2,
+        ((height ?? defaultHeight!) - defaultHeight!).toDouble() / 2,
+      );
+    }
     _SignaturePainter(this, penColor: exportPenColor).paint(
       canvas,
       Size.infinite,
@@ -425,7 +436,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
       return _toPngBytesForWeb();
     }
 
-    final ui.Image? image = await toImage();
+    //WIDTH AND HEIGHT IS OPTIONAL. IMAGE WILL BE CENTERED
+    final ui.Image? image = await toImage(height: 500, width: 400);
 
     if (image == null) {
       return null;
@@ -525,8 +537,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// Export the current content to a SVG graphic.
   /// Will return `null` if there are no points.
-  svg.SvgPicture? toSVG({int? width, int? height}) =>
-    isEmpty
+  svg.SvgPicture? toSVG({int? width, int? height}) => isEmpty
       ? null
       : svg.SvgPicture.string(toRawSVG(width: width, height: height)!);
 }
