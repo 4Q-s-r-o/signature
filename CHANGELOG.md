@@ -1,3 +1,9 @@
+## 5.2.0
+* Ability to export image as SVG (h7x4)
+* Ability to export image to png with given height and width
+  * Drawing will be centered
+  * If dimension is smaller than actual drawing in debug mode there will be assertion error 
+
 ## 5.1.0
 * Fixed broken outside drawing to left and right sides (madsane29)
 * Dynamic pressure support (KiritoDv)
