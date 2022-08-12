@@ -1,3 +1,6 @@
+## 5.2.1
+* Fixed formating of signature.dart to address static analysis on pub.dev
+
 ## 5.2.0
 * Ability to export image as SVG (h7x4)
 * Ability to export image to png with given height and width
