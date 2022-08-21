@@ -437,13 +437,13 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// convert canvas to dart:ui [Image] and then to PNG represented in [Uint8List]
   /// Will return `null` if there are no points.
-  Future<Uint8List?> toPngBytes() async {
+  Future<Uint8List?> toPngBytes([int height = 500, int width = 400]) async {
     if (kIsWeb) {
       return _toPngBytesForWeb();
     }
 
     //WIDTH AND HEIGHT IS OPTIONAL. IMAGE WILL BE CENTERED
-    final ui.Image? image = await toImage(height: 500, width: 400);
+    final ui.Image? image = await toImage(height: height, width: width);
 
     if (image == null) {
       return null;
