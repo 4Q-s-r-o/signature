@@ -59,15 +59,10 @@ class SignatureState extends State<Signature> {
   late double maxHeight;
 
   @override
-  void initState() {
-    super.initState();
-
+  Widget build(BuildContext context) {
     maxWidth = widget.width ?? double.infinity;
     maxHeight = widget.height ?? double.infinity;
-  }
 
-  @override
-  Widget build(BuildContext context) {
     final GestureDetector signatureCanvas = GestureDetector(
       onVerticalDragUpdate: (DragUpdateDetails details) {
         //NO-OP
