@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -436,14 +435,14 @@ class SignatureController extends ValueNotifier<List<Point>> {
   }
 
   /// convert canvas to dart:ui [Image] and then to PNG represented in [Uint8List]
+  /// height and width should be at least as big as the drawings size
   /// Will return `null` if there are no points.
-  Future<Uint8List?> toPngBytes() async {
+  Future<Uint8List?> toPngBytes({int? height, int? width}) async {
     if (kIsWeb) {
       return _toPngBytesForWeb();
     }
 
-    //WIDTH AND HEIGHT IS OPTIONAL. IMAGE WILL BE CENTERED
-    final ui.Image? image = await toImage(height: 500, width: 400);
+    final ui.Image? image = await toImage(height: height, width: width);
 
     if (image == null) {
       return null;
