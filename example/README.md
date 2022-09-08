@@ -1,8 +1,5 @@
-# signature_example
+# Signature Demo
 
-Demonstrates how to use the signature plugin.
+This is a demo of how to use the Signature package most efficiently and correctly in Flutter 3 or higher.
 
-## Getting Started
 
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
