@@ -2,29 +2,41 @@
 
 [![pub package](https://img.shields.io/pub/v/signature.svg)](https://pub.dartlang.org/packages/signature)
 
-A Flutter plugin providing performance optimized signature canvas with ability to set custom style, boundaries and initial state.
-This is native flutter implementation, so it supports all platforms.
+A Flutter plugin providing performance optimized signature canvas with ability
+to set custom style, boundaries and initial state. This is native flutter
+implementation, so it supports all platforms.
 
 ## Why
+
 In time of creation of this plugin, there was no available solution that had:
-* required performance on wide range of devices
-* ability to set canvas boundaries
-* ability to initialize using previously saved state
+
+- required performance on wide range of devices
+- ability to set canvas boundaries
+- ability to initialize using previously saved state
 
 ## Migration to 5.0.0+
-* This version no longer wraps ```Signature``` in ```Expanded``` widget if you are using it without specifying dimensions
-* This removes error ```Incorrect use of ParentDataWidget```, see [this issue](https://github.com/4Q-s-r-o/signature/issues/49) for more information.
-* If you are passing dimensions to widget, you do not have to change anything.
-* If you are using widget without dimensions inside ```Row```, ```Column``` or ```Flex``` widgets, you have to wrap ```Signature``` inside ```Expanded``` yourself.
-* If you are using widget without dimensions, but not inside mentioned widgets you do not have change anything and error should dissapear from your logs :)
+
+- This version no longer wraps `Signature` in `Expanded` widget if you are using
+  it without specifying dimensions
+- This removes error `Incorrect use of ParentDataWidget`, see
+  [this issue](https://github.com/4Q-s-r-o/signature/issues/49) for more
+  information.
+- If you are passing dimensions to widget, you do not have to change anything.
+- If you are using widget without dimensions inside `Row`, `Column` or `Flex`
+  widgets, you have to wrap `Signature` inside `Expanded` yourself.
+- If you are using widget without dimensions, but not inside mentioned widgets
+  you do not have change anything and error should dissapear from your logs :)
 
 ## Usage
 
-To use this plugin, add `signature` as a [dependency in your `pubspec.yaml` file](https://flutter.io/platform-plugins/).
+To use this plugin, add `signature` as a
+[dependency in your `pubspec.yaml` file](https://flutter.io/platform-plugins/).
 
 ## Example
 
-``` dart
+Take a look at our example project as well: [Signature Demo](https://github.com/4Q-s-r-o/signature/tree/master/example)
+
+```dart
 // IMPORT PACKAGE
 import 'package:signature/signature.dart';
 
@@ -61,13 +73,18 @@ var exportedPoints = _controller.points;
 //EXPORTED POINTS CAN BE USED TO INITIALIZE PREVIOUS CONTROLLER
 final SignatureController _controller = SignatureController(points: exportedPoints);
 
-
+//DONT FORGET TO DISPOSE IT IN THE `dispose()` METHOD OF STATEFUL WIDGETS
+@override
+void dispose() {
+  _controller.dispose();
+  super.dispose();
+}
 ```
-![Example image](example.gif)
 
+![Example image](example.gif)
 
 ## Contribution and Support
 
-* Contributions are welcome!
-* If you want to contribute code please create a PR
-* If you find a bug or want a feature, please fill an issue
+- Contributions are welcome!
+- If you want to contribute code please create a PR
+- If you find a bug or want a feature, please fill an issue
