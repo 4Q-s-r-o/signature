@@ -41,6 +41,7 @@ class _HomeState extends State<Home> {
     if (_controller.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          key: Key('snackbarPNG'),
           content: Text('No content'),
         ),
       );
@@ -75,6 +76,7 @@ class _HomeState extends State<Home> {
     if (_controller.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          key: Key('snackbarSVG'),
           content: Text('No content'),
         ),
       );
@@ -117,58 +119,13 @@ class _HomeState extends State<Home> {
           ),
           //SIGNATURE CANVAS
           Signature(
+            key: const Key('signature'),
             controller: _controller,
             height: 300,
             backgroundColor: Colors.grey[300]!,
           ),
           //OK AND CLEAR BUTTONS
-          Container(
-            decoration: const BoxDecoration(color: Colors.black),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                //SHOW EXPORTED IMAGE IN NEW ROUTE
-                IconButton(
-                  icon: const Icon(Icons.image),
-                  color: Colors.blue,
-                  onPressed: () => exportImage(context),
-                  tooltip: 'Export Image',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  color: Colors.blue,
-                  onPressed: () => exportSVG(context),
-                  tooltip: 'Export SVG',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.undo),
-                  color: Colors.blue,
-                  onPressed: () {
-                    setState(() => _controller.undo());
-                  },
-                  tooltip: 'Undo',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.redo),
-                  color: Colors.blue,
-                  onPressed: () {
-                    setState(() => _controller.redo());
-                  },
-                  tooltip: 'Redo',
-                ),
-                //CLEAR CANVAS
-                IconButton(
-                  icon: const Icon(Icons.clear),
-                  color: Colors.blue,
-                  onPressed: () {
-                    setState(() => _controller.clear());
-                  },
-                  tooltip: 'Clear',
-                ),
-              ],
-            ),
-          ),
+
           const SizedBox(
             height: 300,
             child: Center(
@@ -176,6 +133,58 @@ class _HomeState extends State<Home> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Container(
+          decoration: const BoxDecoration(color: Colors.black),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              //SHOW EXPORTED IMAGE IN NEW ROUTE
+              IconButton(
+                key: const Key('exportPNG'),
+                icon: const Icon(Icons.image),
+                color: Colors.blue,
+                onPressed: () => exportImage(context),
+                tooltip: 'Export Image',
+              ),
+              IconButton(
+                key: const Key('exportSVG'),
+                icon: const Icon(Icons.share),
+                color: Colors.blue,
+                onPressed: () => exportSVG(context),
+                tooltip: 'Export SVG',
+              ),
+              IconButton(
+                icon: const Icon(Icons.undo),
+                color: Colors.blue,
+                onPressed: () {
+                  setState(() => _controller.undo());
+                },
+                tooltip: 'Undo',
+              ),
+              IconButton(
+                icon: const Icon(Icons.redo),
+                color: Colors.blue,
+                onPressed: () {
+                  setState(() => _controller.redo());
+                },
+                tooltip: 'Redo',
+              ),
+              //CLEAR CANVAS
+              IconButton(
+                key: const Key('clear'),
+                icon: const Icon(Icons.clear),
+                color: Colors.blue,
+                onPressed: () {
+                  setState(() => _controller.clear());
+                },
+                tooltip: 'Clear',
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
