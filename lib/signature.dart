@@ -413,10 +413,6 @@ class SignatureController extends ValueNotifier<List<Point>> {
         ((width ?? defaultWidth!) - defaultWidth!) >= 0.0,
         'Exported width cannot be smaller than actual width',
       );
-      assert(
-        ((height ?? defaultHeight!) - defaultHeight!) >= 0.0,
-        'Exported height cannot be smaller than actual height',
-      );
       //IF WIDTH OR HEIGHT IS SPECIFIED WE NEED TO CENTER DRAWING
       //WE WILL MOVE THE DRAWING BY HALF OF THE REMAINING SPACE IF
       //IF DIMENSION IS NOT SPECIFIED WE WILL DEFAULT TO ACTUAL
@@ -443,7 +439,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     }
 
     //WIDTH AND HEIGHT IS OPTIONAL. IMAGE WILL BE CENTERED
-    final ui.Image? image = await toImage(height: width, width: height);
+    final ui.Image? image = await toImage(height: height, width: width);
 
     if (image == null) {
       return null;
