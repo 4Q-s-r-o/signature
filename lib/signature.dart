@@ -59,10 +59,13 @@ class SignatureState extends State<Signature> {
   late double maxHeight;
 
   @override
-  Widget build(BuildContext context) {
-    maxWidth = widget.width ?? double.infinity;
-    maxHeight = widget.height ?? double.infinity;
+  void initState() {
+    super.initState();
+    _updateWidgetSize();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     final GestureDetector signatureCanvas = GestureDetector(
       onVerticalDragUpdate: (DragUpdateDetails details) {
         //NO-OP
@@ -127,6 +130,17 @@ class SignatureState extends State<Signature> {
       //IF NO BOUNDARIES ARE DEFINED, RETURN THE WIDGET AS IS
       return signatureCanvas;
     }
+  }
+
+  @override
+  void didUpdateWidget(covariant Signature oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateWidgetSize();
+  }
+
+  void _updateWidgetSize() {
+    maxWidth = widget.width ?? double.infinity;
+    maxHeight = widget.height ?? double.infinity;
   }
 
   @override
