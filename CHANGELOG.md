@@ -1,5 +1,5 @@
 ## 5.3.0
-* Change `toPngBytes` to have desired width and height parameter, where before having 500x400 as fixed.
+* Change `toPngBytes` to have desired width and height parameter, where before having 500x400 as fixed. 
 * Improve Example project and update it to the latest flutter 3
 * Update Readme accordingly
 

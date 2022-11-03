@@ -25,16 +25,21 @@ apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     lintOptions {
         disable 'InvalidPackage'
     }
 
     defaultConfig {
         applicationId "sk.fourq.signatureexample"
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -43,6 +48,7 @@ android {
     buildTypes {
         release {
             // Signing with the debug keys for now, so `flutter run --release` works.
+            // Since this is just example of plugin usage and not production app it is ok.
             signingConfig signingConfigs.debug
         }
     }
@@ -53,7 +59,5 @@ flutter {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.2-alpha01'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.2-alpha01'
+
 }
