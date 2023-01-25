@@ -462,14 +462,13 @@ class SignatureController extends ValueNotifier<List<Point>> {
       return null;
     }
 
-    final int pColor = img.getColor(
-      exportPenColor?.red ?? penColor.red,
-      exportPenColor?.green ?? penColor.green,
-      exportPenColor?.blue ?? penColor.blue,
-    );
+    final img.Color pColor = img.ColorRgb8(exportPenColor?.red ?? penColor.red,
+        exportPenColor?.green ?? penColor.green,
+        exportPenColor?.blue ?? penColor.blue);
+
 
     final Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
-    final int bColor = img.getColor(backgroundColor.red, backgroundColor.green,
+    final img.Color bColor = img.ColorRgba8(backgroundColor.red, backgroundColor.green,
         backgroundColor.blue, backgroundColor.alpha.toInt());
 
     final List<Point> translatedPoints = _translatePoints(points)!;
@@ -478,9 +477,9 @@ class SignatureController extends ValueNotifier<List<Point>> {
     final int height = defaultHeight!;
 
     // create the image with the given size
-    final img.Image signatureImage = img.Image(width, height);
+    final img.Image signatureImage = img.Image(width: width, height: height);
     // set the image background color
-    img.fill(signatureImage, bColor);
+    img.fill(signatureImage, color: bColor);
 
     // read the drawing points list and draw the image
     // it uses the same logic as the CustomPainter Paint function
@@ -488,20 +487,20 @@ class SignatureController extends ValueNotifier<List<Point>> {
       if (translatedPoints[i + 1].type == PointType.move) {
         img.drawLine(
             signatureImage,
-            translatedPoints[i].offset.dx.toInt(),
-            translatedPoints[i].offset.dy.toInt(),
-            translatedPoints[i + 1].offset.dx.toInt(),
-            translatedPoints[i + 1].offset.dy.toInt(),
-            pColor,
+            x1: translatedPoints[i].offset.dx.toInt(),
+            y1: translatedPoints[i].offset.dy.toInt(),
+            x2: translatedPoints[i + 1].offset.dx.toInt(),
+            y2: translatedPoints[i + 1].offset.dy.toInt(),
+            color: pColor,
             thickness: penStrokeWidth);
       } else {
         // draw the point to the image
         img.fillCircle(
           signatureImage,
-          translatedPoints[i].offset.dx.toInt(),
-          translatedPoints[i].offset.dy.toInt(),
-          penStrokeWidth.toInt(),
-          pColor,
+          x: translatedPoints[i].offset.dx.toInt(),
+          y: translatedPoints[i].offset.dy.toInt(),
+          radius: penStrokeWidth.toInt(),
+          color: pColor,
         );
       }
     }
