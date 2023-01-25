@@ -439,9 +439,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// Will return `null` if there are no points.
   Future<Uint8List?> toPngBytes({int? height, int? width}) async {
     if (kIsWeb) {
-      return _toPngBytesForWeb();
+      return _toPngBytesForWeb(height: height, width: width);
     }
-
     final ui.Image? image = await toImage(height: height, width: width);
 
     if (image == null) {
@@ -457,9 +456,20 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// 'image.toByteData' is not available for web. So we are using the package
   /// 'image' to create an image which works on web too.
   /// Will return `null` if there are no points.
-  Uint8List? _toPngBytesForWeb() {
+  Uint8List? _toPngBytesForWeb({int? height, int? width}) {
     if (isEmpty) {
       return null;
+    }
+
+    if (width != null || height != null) {
+      assert(
+        ((width ?? defaultWidth!) - defaultWidth!) >= 0.0,
+        'Exported width cannot be smaller than actual width',
+      );
+      assert(
+        ((height ?? defaultHeight!) - defaultHeight!) >= 0.0,
+        'Exported height cannot be smaller than actual height',
+      );
     }
 
     final int pColor = img.getColor(
@@ -474,13 +484,17 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
     final List<Point> translatedPoints = _translatePoints(points)!;
 
-    final int width = defaultWidth!;
-    final int height = defaultHeight!;
+    final int canvasWidth = width ?? defaultWidth!;
+    final int canvasHeight = height ?? defaultHeight!;
 
     // create the image with the given size
-    final img.Image signatureImage = img.Image(width, height);
+    final img.Image signatureImage = img.Image(canvasWidth, canvasHeight);
     // set the image background color
     img.fill(signatureImage, bColor);
+
+    final xOffset = ((width ?? defaultWidth!) - defaultWidth!).toDouble() / 2;
+    final yOffset =
+        ((height ?? defaultHeight!) - defaultHeight!).toDouble() / 2;
 
     // read the drawing points list and draw the image
     // it uses the same logic as the CustomPainter Paint function
@@ -488,18 +502,18 @@ class SignatureController extends ValueNotifier<List<Point>> {
       if (translatedPoints[i + 1].type == PointType.move) {
         img.drawLine(
             signatureImage,
-            translatedPoints[i].offset.dx.toInt(),
-            translatedPoints[i].offset.dy.toInt(),
-            translatedPoints[i + 1].offset.dx.toInt(),
-            translatedPoints[i + 1].offset.dy.toInt(),
+            (translatedPoints[i].offset.dx + xOffset).toInt(),
+            (translatedPoints[i].offset.dy + yOffset).toInt(),
+            (translatedPoints[i + 1].offset.dx + xOffset).toInt(),
+            (translatedPoints[i + 1].offset.dy + yOffset).toInt(),
             pColor,
             thickness: penStrokeWidth);
       } else {
         // draw the point to the image
         img.fillCircle(
           signatureImage,
-          translatedPoints[i].offset.dx.toInt(),
-          translatedPoints[i].offset.dy.toInt(),
+          (translatedPoints[i].offset.dx + xOffset).toInt(),
+          (translatedPoints[i].offset.dy + yOffset).toInt(),
           penStrokeWidth.toInt(),
           pColor,
         );
