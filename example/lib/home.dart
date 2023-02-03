@@ -1,10 +1,11 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
-import 'package:example/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:signature/signature.dart';
-import 'dart:typed_data';
+
+import 'utils.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

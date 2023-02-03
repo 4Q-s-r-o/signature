@@ -146,9 +146,9 @@ class SignatureState extends State<Signature> {
     // IF WIDGET IS USED WITHOUT DIMENSIONS, WE WILL FALLBACK TO SCREENSIZE
     // DIMENSIONS
     final double _maxSafeWidth =
-        maxWidth == double.infinity ? screenSize!.width : maxWidth;
+    maxWidth == double.infinity ? screenSize!.width : maxWidth;
     final double _maxSafeHeight =
-        maxHeight == double.infinity ? screenSize!.height : maxHeight;
+    maxHeight == double.infinity ? screenSize!.height : maxHeight;
 
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
     if ((screenSize?.width == null || o.dx > 0 && o.dx < _maxSafeWidth) &&
@@ -347,14 +347,14 @@ class SignatureController extends ValueNotifier<List<Point>> {
   List<Point>? _translatePoints(List<Point> points) => isEmpty
       ? null
       : points
-          .map((Point p) => Point(
-              Offset(
-                p.offset.dx - minXValue! + penStrokeWidth,
-                p.offset.dy - minYValue! + penStrokeWidth,
-              ),
-              p.type,
-              p.pressure))
-          .toList();
+      .map((Point p) => Point(
+      Offset(
+        p.offset.dx - minXValue! + penStrokeWidth,
+        p.offset.dy - minYValue! + penStrokeWidth,
+      ),
+      p.type,
+      p.pressure))
+      .toList();
 
   /// Clear the canvas
   void clear() {
@@ -409,12 +409,12 @@ class SignatureController extends ValueNotifier<List<Point>> {
     }
     if (width != null || height != null) {
       assert(
-        ((width ?? defaultWidth!) - defaultWidth!) >= 0.0,
-        'Exported width cannot be smaller than actual width',
+      ((width ?? defaultWidth!) - defaultWidth!) >= 0.0,
+      'Exported width cannot be smaller than actual width',
       );
       assert(
-        ((height ?? defaultHeight!) - defaultHeight!) >= 0.0,
-        'Exported height cannot be smaller than actual height',
+      ((height ?? defaultHeight!) - defaultHeight!) >= 0.0,
+      'Exported height cannot be smaller than actual height',
       );
       //IF WIDTH OR HEIGHT IS SPECIFIED WE NEED TO CENTER DRAWING
       //WE WILL MOVE THE DRAWING BY HALF OF THE REMAINING SPACE IF
@@ -462,15 +462,20 @@ class SignatureController extends ValueNotifier<List<Point>> {
       return null;
     }
 
-    final int pColor = img.getColor(
+    final img.Color pColor = img.ColorRgba8(
       exportPenColor?.red ?? penColor.red,
       exportPenColor?.green ?? penColor.green,
       exportPenColor?.blue ?? penColor.blue,
+      1,
     );
 
     final Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
-    final int bColor = img.getColor(backgroundColor.red, backgroundColor.green,
-        backgroundColor.blue, backgroundColor.alpha.toInt());
+    final img.Color bColor = img.ColorRgba8(
+      backgroundColor.red,
+      backgroundColor.green,
+      backgroundColor.blue,
+      backgroundColor.alpha.toInt(),
+    );
 
     final List<Point> translatedPoints = _translatePoints(points)!;
 
@@ -478,30 +483,31 @@ class SignatureController extends ValueNotifier<List<Point>> {
     final int height = defaultHeight!;
 
     // create the image with the given size
-    final img.Image signatureImage = img.Image(width, height);
+    final img.Image signatureImage = img.Image(width: width, height: height);
     // set the image background color
-    img.fill(signatureImage, bColor);
+    img.fill(signatureImage, color: bColor);
 
     // read the drawing points list and draw the image
     // it uses the same logic as the CustomPainter Paint function
     for (int i = 0; i < translatedPoints.length - 1; i++) {
       if (translatedPoints[i + 1].type == PointType.move) {
         img.drawLine(
-            signatureImage,
-            translatedPoints[i].offset.dx.toInt(),
-            translatedPoints[i].offset.dy.toInt(),
-            translatedPoints[i + 1].offset.dx.toInt(),
-            translatedPoints[i + 1].offset.dy.toInt(),
-            pColor,
-            thickness: penStrokeWidth);
+          signatureImage,
+          x1: translatedPoints[i].offset.dx.toInt(),
+          y1: translatedPoints[i].offset.dy.toInt(),
+          x2: translatedPoints[i + 1].offset.dx.toInt(),
+          y2: translatedPoints[i + 1].offset.dy.toInt(),
+          color: pColor,
+          thickness: penStrokeWidth,
+        );
       } else {
         // draw the point to the image
         img.fillCircle(
           signatureImage,
-          translatedPoints[i].offset.dx.toInt(),
-          translatedPoints[i].offset.dy.toInt(),
-          penStrokeWidth.toInt(),
-          pColor,
+          x: translatedPoints[i].offset.dx.toInt(),
+          y: translatedPoints[i].offset.dy.toInt(),
+          radius: penStrokeWidth.toInt(),
+          color: bColor,
         );
       }
     }

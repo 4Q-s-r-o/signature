@@ -10,8 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_svg: ^1.1.1+1
-  image: ^3.0.0
+  flutter_svg: ^2.0.0
+  image: ^4.0.13
 
 dev_dependencies:
   flutter_test:
