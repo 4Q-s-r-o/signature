@@ -145,10 +145,8 @@ class SignatureState extends State<Signature> {
 
     // IF WIDGET IS USED WITHOUT DIMENSIONS, WE WILL FALLBACK TO SCREENSIZE
     // DIMENSIONS
-    final double _maxSafeWidth =
-        maxWidth == double.infinity ? screenSize!.width : maxWidth;
-    final double _maxSafeHeight =
-        maxHeight == double.infinity ? screenSize!.height : maxHeight;
+    final double _maxSafeWidth = maxWidth == double.infinity ? screenSize!.width : maxWidth;
+    final double _maxSafeHeight = maxHeight == double.infinity ? screenSize!.height : maxHeight;
 
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
     if ((screenSize?.width == null || o.dx > 0 && o.dx < _maxSafeWidth) &&
@@ -314,33 +312,27 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// The biggest x value for all points.
   /// Will return `null` if there are no points.
-  double? get maxXValue =>
-      isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(max);
+  double? get maxXValue => isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(max);
 
   /// The biggest y value for all points.
   /// Will return `null` if there are no points.
-  double? get maxYValue =>
-      isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(max);
+  double? get maxYValue => isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(max);
 
   /// The smallest x value for all points.
   /// Will return `null` if there are no points.
-  double? get minXValue =>
-      isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(min);
+  double? get minXValue => isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(min);
 
   /// The smallest y value for all points.
   /// Will return `null` if there are no points.
-  double? get minYValue =>
-      isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(min);
+  double? get minYValue => isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(min);
 
   /// Calculates a default height based on existing points.
   /// Will return `null` if there are no points.
-  int? get defaultHeight =>
-      isEmpty ? null : (maxYValue! - minYValue! + penStrokeWidth * 2).toInt();
+  int? get defaultHeight => isEmpty ? null : (maxYValue! - minYValue! + penStrokeWidth * 2).toInt();
 
   /// Calculates a default width based on existing points.
   /// Will return `null` if there are no points.
-  int? get defaultWidth =>
-      isEmpty ? null : (maxXValue! - minXValue! + penStrokeWidth * 2).toInt();
+  int? get defaultWidth => isEmpty ? null : (maxXValue! - minXValue! + penStrokeWidth * 2).toInt();
 
   /// Calculates a default width based on existing points.
   /// Will return `null` if there are no points.
@@ -401,8 +393,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final ui.Canvas canvas = Canvas(recorder)
-      ..translate(
-          -(minXValue! - penStrokeWidth), -(minYValue! - penStrokeWidth));
+      ..translate(-(minXValue! - penStrokeWidth), -(minYValue! - penStrokeWidth));
     if (exportBackgroundColor != null) {
       final ui.Paint paint = Paint()..color = exportBackgroundColor!;
       canvas.drawPaint(paint);
@@ -462,15 +453,19 @@ class SignatureController extends ValueNotifier<List<Point>> {
       return null;
     }
 
-    final int pColor = img.getColor(
+    final img.Color pColor = img.ColorRgb8(
       exportPenColor?.red ?? penColor.red,
       exportPenColor?.green ?? penColor.green,
       exportPenColor?.blue ?? penColor.blue,
     );
 
     final Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
-    final int bColor = img.getColor(backgroundColor.red, backgroundColor.green,
-        backgroundColor.blue, backgroundColor.alpha.toInt());
+    final img.Color bColor = img.ColorRgba8(
+      backgroundColor.red,
+      backgroundColor.green,
+      backgroundColor.blue,
+      backgroundColor.alpha.toInt(),
+    );
 
     final List<Point> translatedPoints = _translatePoints(points)!;
 
@@ -478,30 +473,29 @@ class SignatureController extends ValueNotifier<List<Point>> {
     final int height = defaultHeight!;
 
     // create the image with the given size
-    final img.Image signatureImage = img.Image(width, height);
+    final img.Image signatureImage = img.Image(width: width, height: height);
     // set the image background color
-    img.fill(signatureImage, bColor);
+    img.fill(signatureImage, color: bColor);
 
     // read the drawing points list and draw the image
     // it uses the same logic as the CustomPainter Paint function
     for (int i = 0; i < translatedPoints.length - 1; i++) {
       if (translatedPoints[i + 1].type == PointType.move) {
-        img.drawLine(
-            signatureImage,
-            translatedPoints[i].offset.dx.toInt(),
-            translatedPoints[i].offset.dy.toInt(),
-            translatedPoints[i + 1].offset.dx.toInt(),
-            translatedPoints[i + 1].offset.dy.toInt(),
-            pColor,
+        img.drawLine(signatureImage,
+            x1: translatedPoints[i].offset.dx.toInt(),
+            y1: translatedPoints[i].offset.dy.toInt(),
+            x2: translatedPoints[i + 1].offset.dx.toInt(),
+            y2: translatedPoints[i + 1].offset.dy.toInt(),
+            color: pColor,
             thickness: penStrokeWidth);
       } else {
         // draw the point to the image
         img.fillCircle(
           signatureImage,
-          translatedPoints[i].offset.dx.toInt(),
-          translatedPoints[i].offset.dy.toInt(),
-          penStrokeWidth.toInt(),
-          pColor,
+          x: translatedPoints[i].offset.dx.toInt(),
+          y: translatedPoints[i].offset.dy.toInt(),
+          radius: penStrokeWidth.toInt(),
+          color: pColor,
         );
       }
     }
@@ -516,8 +510,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
       return null;
     }
 
-    String colorToHex(Color c) =>
-        '#${c.value.toRadixString(16).padLeft(8, '0')}';
+    String colorToHex(Color c) => '#${c.value.toRadixString(16).padLeft(8, '0')}';
 
     String formatPoint(Point p) =>
         '${p.offset.dx.toStringAsFixed(2)},${p.offset.dy.toStringAsFixed(2)}';
@@ -542,7 +535,6 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// Export the current content to a SVG graphic.
   /// Will return `null` if there are no points.
-  svg.SvgPicture? toSVG({int? width, int? height}) => isEmpty
-      ? null
-      : svg.SvgPicture.string(toRawSVG(width: width, height: height)!);
+  svg.SvgPicture? toSVG({int? width, int? height}) =>
+      isEmpty ? null : svg.SvgPicture.string(toRawSVG(width: width, height: height)!);
 }
