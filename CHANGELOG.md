@@ -1,3 +1,8 @@
+## 5.3.2
+* Ability to initialize width and height of widget with new values (Bungeefan)
+* Exposing new information for drawing styles (StrokeCap, StrokeJoin) (saschaernst)
+* Export image size for web version (saschaernst)
+
 ## 5.3.1
 * upgrade to Flutter 3.7
 * upgrade dependencies
