@@ -214,7 +214,9 @@ class _SignaturePainter extends CustomPainter {
         super(repaint: _controller) {
     _penStyle
       ..color = penColor != null ? penColor : _controller.penColor
-      ..strokeWidth = _controller.penStrokeWidth;
+      ..strokeWidth = _controller.penStrokeWidth
+      ..strokeCap = _controller.strokeCap
+      ..strokeJoin = _controller.strokeJoin;
   }
 
   final SignatureController _controller;
@@ -256,6 +258,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
   SignatureController({
     List<Point>? points,
     this.penColor = Colors.black,
+    this.strokeCap = StrokeCap.butt,
+    this.strokeJoin = StrokeJoin.miter,
     this.penStrokeWidth = 3.0,
     this.exportBackgroundColor,
     this.exportPenColor,
@@ -269,6 +273,12 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// boldness of a signature line
   final double penStrokeWidth;
+
+  /// shape of line ends
+  final StrokeCap strokeCap;
+
+  /// shape of line joins
+  final StrokeJoin strokeJoin;
 
   /// background color to be used in exported png image
   final Color? exportBackgroundColor;
