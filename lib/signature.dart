@@ -61,9 +61,7 @@ class SignatureState extends State<Signature> {
   @override
   void initState() {
     super.initState();
-
-    maxWidth = widget.width ?? double.infinity;
-    maxHeight = widget.height ?? double.infinity;
+    _updateWidgetSize();
   }
 
   @override
@@ -132,6 +130,17 @@ class SignatureState extends State<Signature> {
       //IF NO BOUNDARIES ARE DEFINED, RETURN THE WIDGET AS IS
       return signatureCanvas;
     }
+  }
+
+  @override
+  void didUpdateWidget(covariant Signature oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateWidgetSize();
+  }
+
+  void _updateWidgetSize() {
+    maxWidth = widget.width ?? double.infinity;
+    maxHeight = widget.height ?? double.infinity;
   }
 
   @override
