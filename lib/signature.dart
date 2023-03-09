@@ -74,7 +74,9 @@ class SignatureState extends State<Signature> {
         decoration: BoxDecoration(color: widget.backgroundColor),
         child: Listener(
             onPointerDown: (PointerDownEvent event) {
-              if (activePointerId == null || activePointerId == event.pointer) {
+              if (widget.controller.canEdit &&
+                  (activePointerId == null ||
+                      activePointerId == event.pointer)) {
                 activePointerId = event.pointer;
                 widget.controller.onDrawStart?.call();
                 _addPoint(event, PointType.tap);
@@ -315,10 +317,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// add point to point collection
   void addPoint(Point point) {
-    if (canEdit) {
-      value.add(point);
-      notifyListeners();
-    }
+    value.add(point);
+    notifyListeners();
   }
 
   /// REMEMBERS CURRENT CANVAS STATE IN UNDO STACK
