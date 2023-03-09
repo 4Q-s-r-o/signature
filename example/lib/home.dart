@@ -1,10 +1,10 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:example/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:signature/signature.dart';
-import 'dart:typed_data';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -181,6 +181,18 @@ class _HomeState extends State<Home> {
                   setState(() => _controller.clear());
                 },
                 tooltip: 'Clear',
+              ),
+              // STOP Edit
+              IconButton(
+                key: const Key('stop'),
+                icon: Icon(
+                  _controller.canEdit ? Icons.pause : Icons.play_arrow,
+                ),
+                color: Colors.blue,
+                onPressed: () {
+                  setState(() => _controller.canEdit = !_controller.canEdit);
+                },
+                tooltip: _controller.canEdit ? 'Pause' : 'Play',
               ),
             ],
           ),
