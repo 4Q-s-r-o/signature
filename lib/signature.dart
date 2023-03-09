@@ -257,6 +257,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// constructor
   SignatureController({
     List<Point>? points,
+    this.canEdit = true,
     this.penColor = Colors.black,
     this.strokeCap = StrokeCap.butt,
     this.strokeJoin = StrokeJoin.miter,
@@ -267,6 +268,9 @@ class SignatureController extends ValueNotifier<List<Point>> {
     this.onDrawMove,
     this.onDrawEnd,
   }) : super(points ?? <Point>[]);
+
+  /// a boolean value that allows blocking of the edit.
+  bool canEdit;
 
   /// color of a signature line
   final Color penColor;
@@ -311,8 +315,10 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// add point to point collection
   void addPoint(Point point) {
-    value.add(point);
-    notifyListeners();
+    if (canEdit) {
+      value.add(point);
+      notifyListeners();
+    }
   }
 
   /// REMEMBERS CURRENT CANVAS STATE IN UNDO STACK
