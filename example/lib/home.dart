@@ -18,7 +18,7 @@ class _HomeState extends State<Home> {
   final SignatureController _controller = SignatureController(
     penStrokeWidth: 1,
     penColor: Colors.red,
-    exportBackgroundColor: Colors.blue,
+    exportBackgroundColor: Colors.transparent,
     exportPenColor: Colors.black,
     onDrawStart: () => log('onDrawStart called!'),
     onDrawEnd: () => log('onDrawEnd called!'),

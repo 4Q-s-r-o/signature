@@ -502,7 +502,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     final int canvasHeight = height ?? defaultHeight!;
 
     // create the image with the given size
-    final img.Image signatureImage = img.Image(width: canvasWidth, height: canvasHeight);
+    final img.Image signatureImage = img.Image(width: canvasWidth, height: canvasHeight, numChannels: 4);
     // set the image background color
     img.fill(signatureImage, color: bColor);
 
