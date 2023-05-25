@@ -74,7 +74,7 @@ class SignatureState extends State<Signature> {
         decoration: BoxDecoration(color: widget.backgroundColor),
         child: Listener(
             onPointerDown: (PointerDownEvent event) {
-              if (widget.controller.canEdit &&
+              if (!widget.controller.disabled &&
                   (activePointerId == null ||
                       activePointerId == event.pointer)) {
                 activePointerId = event.pointer;
@@ -83,6 +83,7 @@ class SignatureState extends State<Signature> {
               }
             },
             onPointerUp: (PointerUpEvent event) {
+              _ensurePointerCleanup();
               if (activePointerId == event.pointer) {
                 _addPoint(event, PointType.tap);
                 widget.controller.pushCurrentStateToUndoStack();
@@ -91,6 +92,7 @@ class SignatureState extends State<Signature> {
               }
             },
             onPointerCancel: (PointerCancelEvent event) {
+              _ensurePointerCleanup();
               if (activePointerId == event.pointer) {
                 _addPoint(event, PointType.tap);
                 widget.controller.pushCurrentStateToUndoStack();
@@ -99,6 +101,7 @@ class SignatureState extends State<Signature> {
               }
             },
             onPointerMove: (PointerMoveEvent event) {
+              _ensurePointerCleanup();
               if (activePointerId == event.pointer) {
                 _addPoint(event, PointType.move);
                 widget.controller.onDrawMove?.call();
@@ -140,11 +143,6 @@ class SignatureState extends State<Signature> {
     _updateWidgetSize();
   }
 
-  void _updateWidgetSize() {
-    maxWidth = widget.width ?? double.infinity;
-    maxHeight = widget.height ?? double.infinity;
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -182,6 +180,21 @@ class SignatureState extends State<Signature> {
       //NOTE: USER LEFT THE CANVAS!!! WE WILL SET HELPER VARIABLE
       //WE ARE NOT UPDATING IN setState METHOD BECAUSE WE DO NOT NEED TO RUN BUILD METHOD
       _isOutsideDrawField = true;
+    }
+  }
+
+  void _updateWidgetSize() {
+    maxWidth = widget.width ?? double.infinity;
+    maxHeight = widget.height ?? double.infinity;
+  }
+
+  /// METHOD THAT WILL CLEANUP ANY REMNANT POINTER AFTER DISABLING
+  /// WIDGET
+  void _ensurePointerCleanup() {
+    if(widget.controller.disabled && activePointerId != null){
+      // WIDGET HAS BEEN DISABLED DURING DRAWING.
+      // CANCEL CURRENT DRAW
+      activePointerId = null;
     }
   }
 }
@@ -259,7 +272,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// constructor
   SignatureController({
     List<Point>? points,
-    this.canEdit = true,
+    this.disabled = false,
     this.penColor = Colors.black,
     this.strokeCap = StrokeCap.butt,
     this.strokeJoin = StrokeJoin.miter,
@@ -271,8 +284,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
     this.onDrawEnd,
   }) : super(points ?? <Point>[]);
 
-  /// a boolean value that allows blocking of the edit.
-  bool canEdit;
+  /// If set to true canvas writting will be disabled.
+  bool disabled;
 
   /// color of a signature line
   final Color penColor;

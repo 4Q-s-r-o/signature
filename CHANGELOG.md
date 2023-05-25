@@ -1,3 +1,7 @@
+## 5.4.0
+* Fixed transparent export background in web
+* Ability to disable canvas writting (jeronimocabezuelo)
+
 ## 5.3.2
 * Ability to initialize width and height of widget with new values (Bungeefan)
 * Exposing new information for drawing styles (StrokeCap, StrokeJoin) (saschaernst)

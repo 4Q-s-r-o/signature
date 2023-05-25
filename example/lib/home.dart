@@ -186,13 +186,13 @@ class _HomeState extends State<Home> {
               IconButton(
                 key: const Key('stop'),
                 icon: Icon(
-                  _controller.canEdit ? Icons.pause : Icons.play_arrow,
+                  _controller.disabled ? Icons.pause : Icons.play_arrow,
                 ),
                 color: Colors.blue,
                 onPressed: () {
-                  setState(() => _controller.canEdit = !_controller.canEdit);
+                  setState(() => _controller.disabled = !_controller.disabled);
                 },
-                tooltip: _controller.canEdit ? 'Pause' : 'Play',
+                tooltip: _controller.disabled ? 'Pause' : 'Play',
               ),
             ],
           ),
