@@ -74,7 +74,9 @@ class SignatureState extends State<Signature> {
         decoration: BoxDecoration(color: widget.backgroundColor),
         child: Listener(
             onPointerDown: (PointerDownEvent event) {
-              if (activePointerId == null || activePointerId == event.pointer) {
+              if (widget.controller.canEdit &&
+                  (activePointerId == null ||
+                      activePointerId == event.pointer)) {
                 activePointerId = event.pointer;
                 widget.controller.onDrawStart?.call();
                 _addPoint(event, PointType.tap);
@@ -257,6 +259,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// constructor
   SignatureController({
     List<Point>? points,
+    this.canEdit = true,
     this.penColor = Colors.black,
     this.strokeCap = StrokeCap.butt,
     this.strokeJoin = StrokeJoin.miter,
@@ -267,6 +270,9 @@ class SignatureController extends ValueNotifier<List<Point>> {
     this.onDrawMove,
     this.onDrawEnd,
   }) : super(points ?? <Point>[]);
+
+  /// a boolean value that allows blocking of the edit.
+  bool canEdit;
 
   /// color of a signature line
   final Color penColor;
