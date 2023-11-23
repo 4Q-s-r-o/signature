@@ -568,14 +568,35 @@ class SignatureController extends ValueNotifier<List<Point>> {
     String formatPoint(Point p) =>
         '${p.offset.dx.toStringAsFixed(2)},${p.offset.dy.toStringAsFixed(2)}';
 
-    final String polylines = <String>[
-      for (final List<Point> stroke in _latestActions)
-        '<polyline '
-            'fill="none" '
-            'stroke="${colorToHex(penColor)}" '
-            'points="${_translatePoints(stroke)!.map(formatPoint).join(' ')}" '
-            '/>'
-    ].join('\n');
+    final List<String> latestActionList =
+        List<List<Point>>.from(_latestActions)
+            .map((List<Point> value) {
+              return _translatePoints(value)!.map(formatPoint).join(' ');
+            })
+            .toList()
+            .reversed
+            .toList();
+    final List<String> strokes = latestActionList
+        .asMap()
+        .map((int index, String value) {
+          String stroke = value;
+          if (index + 1 < latestActionList.length) {
+            stroke =
+                stroke.replaceAll('${latestActionList[index + 1]} ', '');
+          }
+          return MapEntry<int, String>(
+              index,
+              '<polyline '
+              'fill="none" '
+              'stroke="${colorToHex(penColor)}" '
+              'points="$stroke" '
+              'stroke-linecap="round" '
+              'stroke-width="$penStrokeWidth" '
+              '/>');
+        })
+        .values
+        .toList();
+    final String polylines = strokes.join('\n');
 
     width ??= defaultWidth;
     height ??= defaultHeight;
