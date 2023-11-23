@@ -422,7 +422,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     }
   }
 
-  /// Convert to an [Image].
+  /// Convert to an [ui.Image].
   /// Will return `null` if there are no points.
   Future<ui.Image?> toImage({int? width, int? height}) async {
     if (isEmpty) {
@@ -463,7 +463,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     return picture.toImage(width ?? defaultWidth!, height ?? defaultHeight!);
   }
 
-  /// convert canvas to dart:ui [Image] and then to PNG represented in [Uint8List]
+  /// convert canvas to dart:ui [ui.Image] and then to PNG represented in [Uint8List]
   /// height and width should be at least as big as the drawings size
   /// Will return `null` if there are no points.
   Future<Uint8List?> toPngBytes({int? height, int? width}) async {
