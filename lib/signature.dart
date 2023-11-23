@@ -563,8 +563,6 @@ class SignatureController extends ValueNotifier<List<Point>> {
       return null;
     }
 
-    String colorToHex(Color c) => '#${c.value.toRadixString(16).padLeft(8, '0')}';
-
     String formatPoint(Point p) =>
         '${p.offset.dx.toStringAsFixed(2)},${p.offset.dy.toStringAsFixed(2)}';
 
@@ -588,7 +586,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
               index,
               '<polyline '
               'fill="none" '
-              'stroke="${colorToHex(penColor)}" '
+              'stroke="${_colorToHex(penColor)}" '
+              'stroke-opacity="${_colorToOpacity(penColor)}" '
               'points="$stroke" '
               'stroke-linecap="round" '
               'stroke-width="$penStrokeWidth" '
@@ -606,6 +605,14 @@ class SignatureController extends ValueNotifier<List<Point>> {
         'xmlns="http://www.w3.org/2000/svg"'
         '>\n$polylines\n</svg>';
   }
+
+  /// Converts color to its hex representation without alpha
+  String _colorToHex(Color c) => '#${c.red.toRadixString(16).padLeft(2, '0')}'
+      '${c.green.toRadixString(16).padLeft(2, '0')}'
+      '${c.blue.toRadixString(16).padLeft(2, '0')}';
+
+  /// Extracts alpha from color
+  double _colorToOpacity(Color c) => c.opacity;
 
   /// Export the current content to a SVG graphic.
   /// Will return `null` if there are no points.

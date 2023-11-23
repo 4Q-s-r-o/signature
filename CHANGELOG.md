@@ -1,3 +1,8 @@
+## 5.4.1
+* Fixed overlapping polylines in svg export (dubydu)
+* Fixed problem with svg color representation in some engines (henry2man)
+
+* 
 ## 5.4.0
 * Fixed transparent export background in web
 * Ability to disable canvas writting (jeronimocabezuelo)
