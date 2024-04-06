@@ -109,7 +109,7 @@ class SignatureState extends State<Signature> {
             },
             child: RepaintBoundary(
               child: CustomPaint(
-                painter: _SignaturePainter(widget.controller),
+                painter: _SignaturePainter(widget.controller, false),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                       minWidth: maxWidth,
@@ -174,6 +174,7 @@ class SignatureState extends State<Signature> {
           o,
           t,
           widget.dynamicPressureSupported ? event.pressure : 1.0,
+          widget.controller.penColor
         ));
       });
     } else {
@@ -211,7 +212,7 @@ enum PointType {
 /// one point on canvas represented by offset and type
 class Point {
   /// constructor
-  Point(this.offset, this.type, this.pressure);
+  Point(this.offset, this.type, this.pressure, this.color);
 
   /// x and y value on 2D canvas
   Offset offset;
@@ -221,14 +222,16 @@ class Point {
 
   /// type of user display finger movement
   PointType type;
+
+  /// Color for point
+  Color color;
 }
 
 class _SignaturePainter extends CustomPainter {
-  _SignaturePainter(this._controller, {Color? penColor})
+  _SignaturePainter(this._controller, this._isExportMode)
       : _penStyle = Paint(),
         super(repaint: _controller) {
     _penStyle
-      ..color = penColor != null ? penColor : _controller.penColor
       ..strokeWidth = _controller.penStrokeWidth
       ..strokeCap = _controller.strokeCap
       ..strokeJoin = _controller.strokeJoin;
@@ -236,6 +239,7 @@ class _SignaturePainter extends CustomPainter {
 
   final SignatureController _controller;
   final Paint _penStyle;
+  final bool _isExportMode;
 
   @override
   void paint(Canvas canvas, _) {
@@ -245,7 +249,11 @@ class _SignaturePainter extends CustomPainter {
     }
     for (int i = 0; i < (points.length - 1); i++) {
       if (points[i + 1].type == PointType.move) {
-        _penStyle.strokeWidth *= points[i].pressure;
+        _penStyle
+          ..strokeWidth *= points[i].pressure
+          ..color = _isExportMode == true && _controller.exportPenColor != null
+              ? _controller.exportPenColor!
+              : points[i + 1].color;
         canvas.drawLine(
           points[i].offset,
           points[i + 1].offset,
@@ -288,7 +296,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
   bool disabled;
 
   /// color of a signature line
-  final Color penColor;
+  Color penColor;
 
   /// boldness of a signature line
   final double penStrokeWidth;
@@ -377,14 +385,15 @@ class SignatureController extends ValueNotifier<List<Point>> {
   List<Point>? _translatePoints(List<Point> points) => isEmpty
       ? null
       : points
-          .map((Point p) => Point(
-              Offset(
-                p.offset.dx - minXValue! + penStrokeWidth,
-                p.offset.dy - minYValue! + penStrokeWidth,
-              ),
-              p.type,
-              p.pressure))
-          .toList();
+      .map((Point p) => Point(
+      Offset(
+        p.offset.dx - minXValue! + penStrokeWidth,
+        p.offset.dy - minYValue! + penStrokeWidth,
+      ),
+      p.type,
+      p.pressure,
+      p.color))
+      .toList();
 
   /// Clear the canvas
   void clear() {
@@ -455,7 +464,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
         ((height ?? defaultHeight!) - defaultHeight!).toDouble() / 2,
       );
     }
-    _SignaturePainter(this, penColor: exportPenColor).paint(
+    _SignaturePainter(this, true).paint(
       canvas,
       Size.infinite,
     );
@@ -539,17 +548,27 @@ class SignatureController extends ValueNotifier<List<Point>> {
             y1: (translatedPoints[i].offset.dy + yOffset).toInt(),
             x2: (translatedPoints[i + 1].offset.dx + xOffset).toInt(),
             y2: (translatedPoints[i + 1].offset.dy + yOffset).toInt(),
-            color: pColor,
+            color: exportPenColor != null
+                ? pColor
+                : img.ColorRgb8(
+                    translatedPoints[i + 1].color.red,
+                    translatedPoints[i + 1].color.green,
+                    translatedPoints[i + 1].color.blue,
+                  ),
             thickness: penStrokeWidth);
       } else {
         // draw the point to the image
-        img.fillCircle(
-          signatureImage,
-          x: (translatedPoints[i].offset.dx + xOffset).toInt(),
-          y: (translatedPoints[i].offset.dy + yOffset).toInt(),
-          radius: penStrokeWidth.toInt(),
-          color: pColor,
-        );
+        img.fillCircle(signatureImage,
+            x: (translatedPoints[i].offset.dx + xOffset).toInt(),
+            y: (translatedPoints[i].offset.dy + yOffset).toInt(),
+            radius: penStrokeWidth.toInt(),
+            color: exportPenColor != null
+                ? pColor
+                : img.ColorRgb8(
+                    translatedPoints[i].color.red,
+                    translatedPoints[i].color.green,
+                    translatedPoints[i].color.blue,
+                  ));
       }
     }
     // encode the image to PNG
