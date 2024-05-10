@@ -1,3 +1,8 @@
+## 5.5.0
+* Upgraded gradle plugin
+* Changed method for getting parent widget size to prevent drawing outside of the widget
+* Fixed exportPenColor being ignored in svg export
+
 ## 5.4.1
 * Fixed overlapping polylines in svg export (dubydu)
 * Fixed problem with svg color representation in some engines (henry2man)
