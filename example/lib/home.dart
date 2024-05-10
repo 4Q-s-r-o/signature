@@ -125,7 +125,7 @@ class _HomeState extends State<Home> {
           ),
           //SIGNATURE CANVAS
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: Signature(
               key: const Key('signature'),
               controller: _controller,

@@ -70,55 +70,63 @@ class SignatureState extends State<Signature> {
       onVerticalDragUpdate: (DragUpdateDetails details) {
         //NO-OP
       },
-      child: Container(
-        decoration: BoxDecoration(color: widget.backgroundColor),
-        child: Listener(
-            onPointerDown: (PointerDownEvent event) {
-              if (!widget.controller.disabled &&
-                  (activePointerId == null ||
-                      activePointerId == event.pointer)) {
-                activePointerId = event.pointer;
-                widget.controller.onDrawStart?.call();
-                _addPoint(event, PointType.tap);
-              }
-            },
-            onPointerUp: (PointerUpEvent event) {
-              _ensurePointerCleanup();
-              if (activePointerId == event.pointer) {
-                _addPoint(event, PointType.tap);
-                widget.controller.pushCurrentStateToUndoStack();
-                widget.controller.onDrawEnd?.call();
-                activePointerId = null;
-              }
-            },
-            onPointerCancel: (PointerCancelEvent event) {
-              _ensurePointerCleanup();
-              if (activePointerId == event.pointer) {
-                _addPoint(event, PointType.tap);
-                widget.controller.pushCurrentStateToUndoStack();
-                widget.controller.onDrawEnd?.call();
-                activePointerId = null;
-              }
-            },
-            onPointerMove: (PointerMoveEvent event) {
-              _ensurePointerCleanup();
-              if (activePointerId == event.pointer) {
-                _addPoint(event, PointType.move);
-                widget.controller.onDrawMove?.call();
-              }
-            },
-            child: RepaintBoundary(
-              child: CustomPaint(
-                painter: _SignaturePainter(widget.controller),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                      minWidth: maxWidth,
-                      minHeight: maxHeight,
-                      maxWidth: maxWidth,
-                      maxHeight: maxHeight),
-                ),
-              ),
-            )),
+      child: LayoutBuilder(
+        builder: (BuildContext buildContext, BoxConstraints boxConstraints) {
+          // WE NEED TO UPDATE SIGNATURE PAD CONSTRINATS USING LAYOUT BUILDER
+          // MEDIA QUERY DOES NOT WORK BECAUSE IT RETURNS SCREEN SIZE, NOT
+          // PARENT WIDGET SIZE
+          screenSize = boxConstraints.biggest;
+          return Container(
+            decoration: BoxDecoration(color: widget.backgroundColor),
+            child: Listener(
+                onPointerDown: (PointerDownEvent event) {
+                  if (!widget.controller.disabled &&
+                      (activePointerId == null ||
+                          activePointerId == event.pointer)) {
+                    activePointerId = event.pointer;
+                    widget.controller.onDrawStart?.call();
+                    _addPoint(event, PointType.tap);
+                  }
+                },
+                onPointerUp: (PointerUpEvent event) {
+                  _ensurePointerCleanup();
+                  if (activePointerId == event.pointer) {
+                    _addPoint(event, PointType.tap);
+                    widget.controller.pushCurrentStateToUndoStack();
+                    widget.controller.onDrawEnd?.call();
+                    activePointerId = null;
+                  }
+                },
+                onPointerCancel: (PointerCancelEvent event) {
+                  _ensurePointerCleanup();
+                  if (activePointerId == event.pointer) {
+                    _addPoint(event, PointType.tap);
+                    widget.controller.pushCurrentStateToUndoStack();
+                    widget.controller.onDrawEnd?.call();
+                    activePointerId = null;
+                  }
+                },
+                onPointerMove: (PointerMoveEvent event) {
+                  _ensurePointerCleanup();
+                  if (activePointerId == event.pointer) {
+                    _addPoint(event, PointType.move);
+                    widget.controller.onDrawMove?.call();
+                  }
+                },
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    painter: _SignaturePainter(widget.controller),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                          minWidth: maxWidth,
+                          minHeight: maxHeight,
+                          maxWidth: maxWidth,
+                          maxHeight: maxHeight),
+                    ),
+                  ),
+                )),
+          );
+        },
       ),
     );
 
@@ -143,19 +151,15 @@ class SignatureState extends State<Signature> {
     _updateWidgetSize();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    screenSize = MediaQuery.of(context).size;
-  }
-
   void _addPoint(PointerEvent event, PointType type) {
     final Offset o = event.localPosition;
 
     // IF WIDGET IS USED WITHOUT DIMENSIONS, WE WILL FALLBACK TO SCREENSIZE
     // DIMENSIONS
-    final double _maxSafeWidth = maxWidth == double.infinity ? screenSize!.width : maxWidth;
-    final double _maxSafeHeight = maxHeight == double.infinity ? screenSize!.height : maxHeight;
+    final double _maxSafeWidth =
+        maxWidth == double.infinity ? screenSize!.width : maxWidth;
+    final double _maxSafeHeight =
+        maxHeight == double.infinity ? screenSize!.height : maxHeight;
 
     //SAVE POINT ONLY IF IT IS IN THE SPECIFIED BOUNDARIES
     if ((screenSize?.width == null || o.dx > 0 && o.dx < _maxSafeWidth) &&
@@ -191,7 +195,7 @@ class SignatureState extends State<Signature> {
   /// METHOD THAT WILL CLEANUP ANY REMNANT POINTER AFTER DISABLING
   /// WIDGET
   void _ensurePointerCleanup() {
-    if(widget.controller.disabled && activePointerId != null){
+    if (widget.controller.disabled && activePointerId != null) {
       // WIDGET HAS BEEN DISABLED DURING DRAWING.
       // CANCEL CURRENT DRAW
       activePointerId = null;
@@ -350,27 +354,33 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// The biggest x value for all points.
   /// Will return `null` if there are no points.
-  double? get maxXValue => isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(max);
+  double? get maxXValue =>
+      isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(max);
 
   /// The biggest y value for all points.
   /// Will return `null` if there are no points.
-  double? get maxYValue => isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(max);
+  double? get maxYValue =>
+      isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(max);
 
   /// The smallest x value for all points.
   /// Will return `null` if there are no points.
-  double? get minXValue => isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(min);
+  double? get minXValue =>
+      isEmpty ? null : points.map((Point p) => p.offset.dx).reduce(min);
 
   /// The smallest y value for all points.
   /// Will return `null` if there are no points.
-  double? get minYValue => isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(min);
+  double? get minYValue =>
+      isEmpty ? null : points.map((Point p) => p.offset.dy).reduce(min);
 
   /// Calculates a default height based on existing points.
   /// Will return `null` if there are no points.
-  int? get defaultHeight => isEmpty ? null : (maxYValue! - minYValue! + penStrokeWidth * 2).toInt();
+  int? get defaultHeight =>
+      isEmpty ? null : (maxYValue! - minYValue! + penStrokeWidth * 2).toInt();
 
   /// Calculates a default width based on existing points.
   /// Will return `null` if there are no points.
-  int? get defaultWidth => isEmpty ? null : (maxXValue! - minXValue! + penStrokeWidth * 2).toInt();
+  int? get defaultWidth =>
+      isEmpty ? null : (maxXValue! - minXValue! + penStrokeWidth * 2).toInt();
 
   /// Calculates a default width based on existing points.
   /// Will return `null` if there are no points.
@@ -431,7 +441,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final ui.Canvas canvas = Canvas(recorder)
-      ..translate(-(minXValue! - penStrokeWidth), -(minYValue! - penStrokeWidth));
+      ..translate(
+          -(minXValue! - penStrokeWidth), -(minYValue! - penStrokeWidth));
     if (exportBackgroundColor != null) {
       final ui.Paint paint = Paint()..color = exportBackgroundColor!;
       canvas.drawPaint(paint);
@@ -521,11 +532,13 @@ class SignatureController extends ValueNotifier<List<Point>> {
     final int canvasHeight = height ?? defaultHeight!;
 
     // create the image with the given size
-    final img.Image signatureImage = img.Image(width: canvasWidth, height: canvasHeight, numChannels: 4);
+    final img.Image signatureImage =
+        img.Image(width: canvasWidth, height: canvasHeight, numChannels: 4);
     // set the image background color
     img.fill(signatureImage, color: bColor);
 
-    final double xOffset = ((width ?? defaultWidth!) - defaultWidth!).toDouble() / 2;
+    final double xOffset =
+        ((width ?? defaultWidth!) - defaultWidth!).toDouble() / 2;
     final double yOffset =
         ((height ?? defaultHeight!) - defaultHeight!).toDouble() / 2;
 
@@ -533,8 +546,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     // it uses the same logic as the CustomPainter Paint function
     for (int i = 0; i < translatedPoints.length - 1; i++) {
       if (translatedPoints[i + 1].type == PointType.move) {
-        img.drawLine(
-            signatureImage,
+        img.drawLine(signatureImage,
             x1: (translatedPoints[i].offset.dx + xOffset).toInt(),
             y1: (translatedPoints[i].offset.dy + yOffset).toInt(),
             x2: (translatedPoints[i + 1].offset.dx + xOffset).toInt(),
@@ -566,21 +578,19 @@ class SignatureController extends ValueNotifier<List<Point>> {
     String formatPoint(Point p) =>
         '${p.offset.dx.toStringAsFixed(2)},${p.offset.dy.toStringAsFixed(2)}';
 
-    final List<String> latestActionList =
-        List<List<Point>>.from(_latestActions)
-            .map((List<Point> value) {
-              return _translatePoints(value)!.map(formatPoint).join(' ');
-            })
-            .toList()
-            .reversed
-            .toList();
+    final List<String> latestActionList = List<List<Point>>.from(_latestActions)
+        .map((List<Point> value) {
+          return _translatePoints(value)!.map(formatPoint).join(' ');
+        })
+        .toList()
+        .reversed
+        .toList();
     final List<String> strokes = latestActionList
         .asMap()
         .map((int index, String value) {
           String stroke = value;
           if (index + 1 < latestActionList.length) {
-            stroke =
-                stroke.replaceAll('${latestActionList[index + 1]} ', '');
+            stroke = stroke.replaceAll('${latestActionList[index + 1]} ', '');
           }
           return MapEntry<int, String>(
               index,
@@ -616,6 +626,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// Export the current content to a SVG graphic.
   /// Will return `null` if there are no points.
-  svg.SvgPicture? toSVG({int? width, int? height}) =>
-      isEmpty ? null : svg.SvgPicture.string(toRawSVG(width: width, height: height)!);
+  svg.SvgPicture? toSVG({int? width, int? height}) => isEmpty
+      ? null
+      : svg.SvgPicture.string(toRawSVG(width: width, height: height)!);
 }
