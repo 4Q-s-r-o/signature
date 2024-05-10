@@ -27,7 +27,13 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => log('Value changed'));
+    _controller
+      ..addListener(() => log('Value changed'))
+      ..onDrawEnd = () => setState(
+            () {
+              // setState for build to update value of "empty label" in gui
+            },
+          );
   }
 
   @override
@@ -118,14 +124,18 @@ class _HomeState extends State<Home> {
             ),
           ),
           //SIGNATURE CANVAS
-          Signature(
-            key: const Key('signature'),
-            controller: _controller,
-            height: 300,
-            backgroundColor: Colors.grey[300]!,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Signature(
+              key: const Key('signature'),
+              controller: _controller,
+              height: 300,
+              backgroundColor: Colors.grey[300]!,
+            ),
           ),
-          //OK AND CLEAR BUTTONS
-
+          Text(_controller.isEmpty
+              ? "Signature pad is empty"
+              : "Signature pad is not empty"),
           const SizedBox(
             height: 300,
             child: Center(
