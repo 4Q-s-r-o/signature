@@ -32,9 +32,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    lintOptions {
-        disable 'InvalidPackage'
-    }
 
     defaultConfig {
         applicationId "sk.fourq.signatureexample"
@@ -51,6 +48,10 @@ android {
             // Since this is just example of plugin usage and not production app it is ok.
             signingConfig signingConfigs.debug
         }
+    }
+    namespace 'sk.fourq.signatureexample'
+    lint {
+        disable 'InvalidPackage'
     }
 }
 
