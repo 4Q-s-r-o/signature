@@ -586,8 +586,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
               index,
               '<polyline '
               'fill="none" '
-              'stroke="${_colorToHex(penColor)}" '
-              'stroke-opacity="${_colorToOpacity(penColor)}" '
+              'stroke="${_colorToHex(exportPenColor ?? penColor)}" '
+              'stroke-opacity="${_colorToOpacity(exportPenColor ?? penColor)}" '
               'points="$stroke" '
               'stroke-linecap="round" '
               'stroke-width="$penStrokeWidth" '
