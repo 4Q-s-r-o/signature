@@ -352,6 +352,12 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// check if canvas is not empty (opposite of isEmpty method for convenience)
   bool get isNotEmpty => value.isNotEmpty;
 
+  /// check if there is any action to undo
+  bool get canUndo => _latestActions.isNotEmpty;
+
+  /// check if there is any action to redo
+  bool get canRedo => _revertedActions.isNotEmpty;
+
   /// The biggest x value for all points.
   /// Will return `null` if there are no points.
   double? get maxXValue =>
