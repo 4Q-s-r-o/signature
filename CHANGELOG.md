@@ -1,3 +1,7 @@
+## 6.0.0
+* Upgraded flutter to 3.29
+* Added new boolean fields ```canUndo```, ```canRedo``` on ```SignatureController``` (justintunev7)
+
 ## 5.5.0
 * Upgraded gradle plugin
 * Changed method for getting parent widget size to prevent drawing outside of the widget

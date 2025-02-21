@@ -10,8 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.5
-  flutter_svg: ^2.0.0+1
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.17
   signature:
     path: ../
 

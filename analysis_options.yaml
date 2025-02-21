@@ -17,7 +17,6 @@ linter:
     - always_declare_return_types
     - always_put_control_body_on_new_line
     - always_put_required_named_parameters_first
-    - always_require_non_null_named_parameters
     - always_specify_types
     - annotate_overrides
     # NEMOZE SA ZAPNUT AK CHCEME MAT VZDY SPECIFIKOVANY TYP (always_specify_types)
@@ -44,7 +43,6 @@ linter:
     - avoid_relative_lib_imports
     - avoid_renaming_method_parameters
     - avoid_return_types_on_setters
-    - avoid_returning_null
     - avoid_returning_this
     - avoid_setters_without_getters
     - avoid_single_cascade_in_expression_statements
@@ -71,13 +69,11 @@ linter:
     - file_names
     - hash_and_equals
     - implementation_imports
-    - iterable_contains_unrelated_type
     - join_return_with_assignment
     - library_names
     - library_prefixes
     # MY CHCEME MAT RIADKY DLHSIE AKO 80 ZNAKOV. 80 JE PRIKRATKE AK CHCEME DODRZIAVAT PRAVIDLO JASNEHO POMENUVAVANIA
     # - lines_longer_than_80_chars
-    - list_remove_unrelated_type
     - literal_only_boolean_expressions
     - no_adjacent_strings_in_list
     - no_duplicate_case_values
@@ -89,7 +85,6 @@ linter:
     - only_throw_errors
     # POTREBUJEME OVERRIDOVAT FIELDY V DOMENOVYCH OBJEKTOCH. VDAKA TOMU VIEME MENIT CHOVANIE V ZI
     # - overridden_fields
-    - package_api_docs
     - package_names
     - package_prefixed_library_names
     - parameter_assignments
@@ -103,7 +98,6 @@ linter:
     - prefer_const_literals_to_create_immutables
     - prefer_constructors_over_static_methods
     - prefer_contains
-    - prefer_equal_for_default_values
     # NECHCEME PRE VIAC RIADKOVE METODY POUZIVAT SKRATENY ZAPIS, JE TO NEPREHLADNE
     # - prefer_expression_function_bodies
     - prefer_final_fields

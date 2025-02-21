@@ -519,17 +519,17 @@ class SignatureController extends ValueNotifier<List<Point>> {
     }
 
     final img.Color pColor = img.ColorRgb8(
-      exportPenColor?.red ?? penColor.red,
-      exportPenColor?.green ?? penColor.green,
-      exportPenColor?.blue ?? penColor.blue,
+      exportPenColor?.r.toInt() ?? penColor.r.toInt(),
+      exportPenColor?.g.toInt() ?? penColor.g.toInt(),
+      exportPenColor?.b.toInt() ?? penColor.b.toInt(),
     );
 
     final Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
     final img.Color bColor = img.ColorRgba8(
-      backgroundColor.red,
-      backgroundColor.green,
-      backgroundColor.blue,
-      backgroundColor.alpha.toInt(),
+      backgroundColor.r.toInt(),
+      backgroundColor.g.toInt(),
+      backgroundColor.b.toInt(),
+      backgroundColor.a.toInt(),
     );
 
     final List<Point> translatedPoints = _translatePoints(points)!;
@@ -623,12 +623,12 @@ class SignatureController extends ValueNotifier<List<Point>> {
   }
 
   /// Converts color to its hex representation without alpha
-  String _colorToHex(Color c) => '#${c.red.toRadixString(16).padLeft(2, '0')}'
-      '${c.green.toRadixString(16).padLeft(2, '0')}'
-      '${c.blue.toRadixString(16).padLeft(2, '0')}';
+  String _colorToHex(Color c) => '#${c.r.toInt().toRadixString(16).padLeft(2, '0')}'
+      '${c.g.toInt().toRadixString(16).padLeft(2, '0')}'
+      '${c.b.toInt().toRadixString(16).padLeft(2, '0')}';
 
   /// Extracts alpha from color
-  double _colorToOpacity(Color c) => c.opacity;
+  double _colorToOpacity(Color c) => c.a;
 
   /// Export the current content to a SVG graphic.
   /// Will return `null` if there are no points.
