@@ -1,3 +1,7 @@
+## 6.1.0
+* Upgraded flutter to 3.32
+* Bumped dependencies
+
 ## 6.0.0
 * Upgraded flutter to 3.29
 * Added new boolean fields ```canUndo```, ```canRedo``` on ```SignatureController``` (justintunev7)
@@ -11,7 +15,6 @@
 * Fixed overlapping polylines in svg export (dubydu)
 * Fixed problem with svg color representation in some engines (henry2man)
 
-* 
 ## 5.4.0
 * Fixed transparent export background in web
 * Ability to disable canvas writting (jeronimocabezuelo)

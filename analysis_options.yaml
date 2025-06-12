@@ -1,3 +1,5 @@
+formatter:
+  page_width: 120
 # MOZNOSTI ANALYZY KODU POVODNE ZOBRATE PRIAMO Z FLUTTER PROJEKTU NA GITHUBE
 analyzer:
   strong-mode:

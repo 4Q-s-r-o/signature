@@ -1,0 +1,76 @@
+on: push
+
+name: On push
+
+jobs:
+  build:
+    name: On push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v1
+      - run: flutter pub get
+      - name: Analyze Dart
+        uses: zgosalvez/github-actions-analyze-dart@v3
+        with:
+          fail-on-warnings: true
+          fail-on-infos: true
+      - id: autotag
+        name: autotag
+        uses: jacopocarlini/action-autotag@master
+        if: github.ref == 'refs/heads/master'
+        with:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Check if version is in CHANGELOG.md
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push' && steps.autotag.outputs.tagname != ''
+        run: |
+            VERSION="${{steps.autotag.outputs.tagname}}"
+            if grep -q "${VERSION}" CHANGELOG.md; then
+              echo "✅ Version ${VERSION} found in CHANGELOG.md"
+            else
+              echo "❌ Version ${VERSION} NOT found in CHANGELOG.md"
+              exit 1
+            fi
+      - name: Trigger publish
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push' && steps.autotag.outputs.tagname != ''
+        run: |
+          echo "Triggering publish workflow for tag $TAG"
+          gh workflow run publish.yml --ref "$TAG"
+          
+          echo "Waiting for the new publish workflow run to be available..."
+          NEW_RUN_URL=""
+          NEW_RUN_ID=""
+          # Loop to poll for the URL of the newly triggered run
+          for i in {1..10}; do
+            NEW_RUN_URL=$(gh run list --workflow publish.yml --branch "$TAG" --limit 1 --json url -q '.[0].url')
+            if [ -n "$NEW_RUN_URL" ]; then
+              # Parse the run id from the URL; assumes URL format ends with the numeric run id.
+              NEW_RUN_ID=$(echo "$NEW_RUN_URL" | grep -oE '[0-9]+$')
+              if [ -n "$NEW_RUN_ID" ]; then
+                echo "Found new run id: $NEW_RUN_ID"
+                break
+              fi
+            fi
+            echo "Run id not available yet, waiting for 10 seconds..."
+            sleep 10
+          done
+          
+          if [ -z "$NEW_RUN_ID" ]; then
+            echo "Failed to retrieve the run id for publish workflow."
+            exit 1
+          fi
+          
+          echo "Waiting for the publish run $NEW_RUN_ID to complete..."
+          gh run watch "$NEW_RUN_ID" --exit-status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.autotag.outputs.tagname }}
+      - uses: ClementTsang/delete-tag-and-release@v0.3.1
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push' && steps.autotag.outputs.tagname != '' && failure()
+        with:
+          delete_release: false
+          tag_name: ${{steps.autotag.outputs.tagname}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

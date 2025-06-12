@@ -1,0 +1,14 @@
+# .github/workflows/publish.yml
+name: Publish to pub.dev
+
+on:
+  workflow_dispatch:
+
+# Publish using the reusable workflow from dart-lang.
+jobs:
+  publish:
+    permissions:
+      id-token: write # Required for authentication using OIDC
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    # with:
+    #   working-directory: path/to/package/within/repository
