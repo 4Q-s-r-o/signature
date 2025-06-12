@@ -60,7 +60,7 @@ class _HomeState extends State<Home> {
       return;
     }
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     await push(
       context,
