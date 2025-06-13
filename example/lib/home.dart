@@ -88,7 +88,8 @@ class _HomeState extends State<Home> {
       return;
     }
     String? rawSVGoptimized = _controller.toRawSVG();
-    String? rawSVGnonoptimized = _controller.toRawSVG(minDistanceBetweenPoints: 0);
+    String? rawSVGnonoptimized =
+        _controller.toRawSVG(minDistanceBetweenPoints: 0);
     debugPrint('Raw svg without optimalizations: ');
     printLongString(rawSVGnonoptimized);
     debugPrint("----");
