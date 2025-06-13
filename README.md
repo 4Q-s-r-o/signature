@@ -85,6 +85,4 @@ void dispose() {
 
 ## Contribution and Support
 
-- Contributions are welcome!
-- If you want to contribute code please create a PR
-- If you find a bug or want a feature, please fill an issue
+- See [Contribution guide](CONTRIBUTING.md) for more info
