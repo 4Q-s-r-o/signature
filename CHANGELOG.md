@@ -1,6 +1,7 @@
+## 6.3.0
+* Unified web implementation with standard native as Image.toByteData is at now available for web resulting in more performant export and higher image quality
 ## 6.2.1
 * Fixed laggy paints with some settings
-
 ## 6.2.0
 * Reworked SVG export to stop abusing undo / redo stack for svg export. This solves the problem with svg export after initializing controller with points
 * Optimized svg export to exclude points that are too close to each other. The default value is "3," but can be overriden in export parameters.

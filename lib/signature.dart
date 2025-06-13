@@ -5,7 +5,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart' as svg;
-import 'package:image/image.dart' as img;
 
 /// signature canvas. Controller is required, other parameters are optional.
 /// widget/canvas expands to maximum by default.
@@ -239,7 +238,7 @@ class _SignaturePainter extends CustomPainter {
         for (int i = 0; i < (stroke.length - 1); i++) {
           _penStyle.strokeWidth *= stroke[i].pressure;
           canvas.drawLine(stroke[i].offset, stroke[i + 1].offset, _penStyle);
-          if(_penStyle.strokeWidth > 2) {
+          if (_penStyle.strokeWidth > 2) {
             canvas.drawCircle(stroke[i].offset, (_penStyle.strokeWidth / 2) * stroke[i].pressure, _penStyle);
           }
         }
@@ -454,88 +453,12 @@ class SignatureController extends ValueNotifier<List<Point>> {
   /// height and width should be at least as big as the drawings size
   /// Will return `null` if there are no points.
   Future<Uint8List?> toPngBytes({int? height, int? width}) async {
-    if (kIsWeb) {
-      return _toPngBytesForWeb(height: height, width: width);
-    }
     final ui.Image? image = await toImage(height: height, width: width);
-
     if (image == null) {
       return null;
     }
-
     final ByteData? bytes = await image.toByteData(format: ui.ImageByteFormat.png);
     return bytes?.buffer.asUint8List();
-  }
-
-  /// 'image.toByteData' is not available for web. So we are using the package
-  /// 'image' to create an image which works on web too.
-  /// Will return `null` if there are no points.
-  Uint8List? _toPngBytesForWeb({int? height, int? width}) {
-    if (isEmpty) {
-      return null;
-    }
-
-    if (width != null || height != null) {
-      assert(((width ?? defaultWidth!) - defaultWidth!) >= 0.0, 'Exported width cannot be smaller than actual width');
-      assert(
-        ((height ?? defaultHeight!) - defaultHeight!) >= 0.0,
-        'Exported height cannot be smaller than actual height',
-      );
-    }
-
-    final img.Color pColor = img.ColorRgb8(
-      exportPenColor?.r.toInt() ?? penColor.r.toInt(),
-      exportPenColor?.g.toInt() ?? penColor.g.toInt(),
-      exportPenColor?.b.toInt() ?? penColor.b.toInt(),
-    );
-
-    final Color backgroundColor = exportBackgroundColor ?? Colors.transparent;
-    final img.Color bColor = img.ColorRgba8(
-      backgroundColor.r.toInt(),
-      backgroundColor.g.toInt(),
-      backgroundColor.b.toInt(),
-      backgroundColor.a.toInt(),
-    );
-
-    final List<Point> translatedPoints = _translatePoints(points);
-
-    final int canvasWidth = width ?? defaultWidth!;
-    final int canvasHeight = height ?? defaultHeight!;
-
-    // create the image with the given size
-    final img.Image signatureImage = img.Image(width: canvasWidth, height: canvasHeight, numChannels: 4);
-    // set the image background color
-    img.fill(signatureImage, color: bColor);
-
-    final double xOffset = ((width ?? defaultWidth!) - defaultWidth!).toDouble() / 2;
-    final double yOffset = ((height ?? defaultHeight!) - defaultHeight!).toDouble() / 2;
-
-    // read the drawing points list and draw the image
-    // it uses the same logic as the CustomPainter Paint function
-    for (int i = 0; i < translatedPoints.length - 1; i++) {
-      if (translatedPoints[i + 1].type == PointType.move) {
-        img.drawLine(
-          signatureImage,
-          x1: (translatedPoints[i].offset.dx + xOffset).toInt(),
-          y1: (translatedPoints[i].offset.dy + yOffset).toInt(),
-          x2: (translatedPoints[i + 1].offset.dx + xOffset).toInt(),
-          y2: (translatedPoints[i + 1].offset.dy + yOffset).toInt(),
-          color: pColor,
-          thickness: penStrokeWidth,
-        );
-      } else {
-        // draw the point to the image
-        img.fillCircle(
-          signatureImage,
-          x: (translatedPoints[i].offset.dx + xOffset).toInt(),
-          y: (translatedPoints[i].offset.dy + yOffset).toInt(),
-          radius: penStrokeWidth.toInt(),
-          color: pColor,
-        );
-      }
-    }
-    // encode the image to PNG
-    return Uint8List.fromList(img.encodePng(signatureImage));
   }
 
   /// Export the current content to a raw SVG string.
