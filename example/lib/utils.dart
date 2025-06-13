@@ -10,3 +10,11 @@ Future push(context, widget) {
     ),
   );
 }
+
+/// Prints long string to logs
+void printLongString(String? text) {
+  if (text != null) {
+    final pattern = RegExp('.{1,800}');
+    pattern.allMatches(text).forEach((match) => debugPrint(match.group(0)));
+  }
+}

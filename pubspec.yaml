@@ -1,6 +1,6 @@
 name: signature
 description: A Flutter plugin providing performance optimized signature canvas with ability to set custom style, boundaries and initial state.
-version: 6.1.0
+version: 6.2.0
 homepage: https://github.com/4Q-s-r-o/signature
 
 environment:
@@ -16,5 +16,3 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-flutter:

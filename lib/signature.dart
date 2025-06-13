@@ -362,18 +362,16 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// Calculates a default width based on existing points.
   /// Will return `null` if there are no points.
-  List<Point>? _translatePoints(List<Point> points) =>
-      isEmpty
-          ? null
-          : points
-              .map(
-                (Point p) => Point(
-                  Offset(p.offset.dx - minXValue! + penStrokeWidth, p.offset.dy - minYValue! + penStrokeWidth),
-                  p.type,
-                  p.pressure,
-                ),
-              )
-              .toList();
+  List<Point> _translatePoints(List<Point> points) =>
+      points
+          .map(
+            (Point p) => Point(
+              Offset(p.offset.dx - minXValue! + penStrokeWidth, p.offset.dy - minYValue! + penStrokeWidth),
+              p.type,
+              p.pressure,
+            ),
+          )
+          .toList();
 
   /// Clear the canvas
   void clear() {
@@ -493,7 +491,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
       backgroundColor.a.toInt(),
     );
 
-    final List<Point> translatedPoints = _translatePoints(points)!;
+    final List<Point> translatedPoints = _translatePoints(points);
 
     final int canvasWidth = width ?? defaultWidth!;
     final int canvasHeight = height ?? defaultHeight!;
@@ -536,52 +534,81 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// Export the current content to a raw SVG string.
   /// Will return `null` if there are no points.
-  String? toRawSVG({int? width, int? height}) {
+  /// [width] Canvas width to use
+  /// [height] Canvas height to use
+  /// [minDistanceBetweenPoints] Minimal distance between points to be included in svg. Used to reduce svg output size.
+  String? toRawSVG({int? width, int? height, double minDistanceBetweenPoints = 3}) {
     if (isEmpty) {
       return null;
     }
 
-    String formatPoint(Point p) => '${p.offset.dx.toStringAsFixed(2)},${p.offset.dy.toStringAsFixed(2)}';
-
-    final List<String> latestActionList =
-        List<List<Point>>.from(_latestActions)
-            .map((List<Point> value) {
-              return _translatePoints(value)!.map(formatPoint).join(' ');
-            })
-            .toList()
-            .reversed
-            .toList();
-    final List<String> strokes =
-        latestActionList
-            .asMap()
-            .map((int index, String value) {
-              String stroke = value;
-              if (index + 1 < latestActionList.length) {
-                stroke = stroke.replaceAll('${latestActionList[index + 1]} ', '');
-              }
-              return MapEntry<int, String>(
-                index,
-                '<polyline '
-                'fill="none" '
-                'stroke="${_colorToHex(exportPenColor ?? penColor)}" '
-                'stroke-opacity="${_colorToOpacity(exportPenColor ?? penColor)}" '
-                'points="$stroke" '
-                'stroke-linecap="round" '
-                'stroke-width="$penStrokeWidth" '
-                '/>',
-              );
-            })
-            .values
-            .toList();
-    final String polylines = strokes.join('\n');
-
     width ??= defaultWidth;
     height ??= defaultHeight;
+    String formatPoint(Point p) => '${p.offset.dx.toStringAsFixed(2)},${p.offset.dy.toStringAsFixed(2)}';
 
-    return '<svg '
-        'viewBox="0 0 $width $height" '
-        'xmlns="http://www.w3.org/2000/svg"'
-        '>\n$polylines\n</svg>';
+    final StringBuffer svg = StringBuffer('<svg viewBox="0 0 $width $height" xmlns="http://www.w3.org/2000/svg">');
+    final List<List<Point>> strokes = <List<Point>>[];
+    List<Point> currentStroke = <Point>[];
+    for (final Point point in _optimizePoints(points, minDistance: minDistanceBetweenPoints)) {
+      if (point.type == PointType.move) {
+        currentStroke.add(point);
+      } else {
+        if (currentStroke.isNotEmpty) {
+          strokes.add(currentStroke);
+          currentStroke = <Point>[];
+        }
+        currentStroke.add(point);
+      }
+    }
+    if (currentStroke.isNotEmpty) {
+      strokes.add(currentStroke);
+    }
+    for (List<Point> stroke in strokes) {
+      final List<Point> translatedStroke = _translatePoints(stroke);
+      if (stroke.length > 1) {
+        svg.writeln(
+          '<polyline '
+          'fill="none" '
+          'stroke="${_colorToHex(exportPenColor ?? penColor)}" '
+          'stroke-opacity="${_colorToOpacity(exportPenColor ?? penColor)}" '
+          'points="${translatedStroke.map(formatPoint).join(' ')}" '
+          'stroke-linecap="round" '
+          'stroke-width="$penStrokeWidth" '
+          '/>',
+        );
+      } else {
+        svg.writeln(
+          '<circle '
+          'cx="${translatedStroke.first.offset.dx.toStringAsFixed(2)}" '
+          'cy="${translatedStroke.first.offset.dy.toStringAsFixed(2)}" '
+          'r="${(penStrokeWidth / 2).toStringAsFixed(2)}" '
+          'fill="${_colorToHex(exportPenColor ?? penColor)}" '
+          '/>',
+        );
+      }
+    }
+    svg.writeln('</svg>');
+    return svg.toString();
+  }
+
+  /// Util function to optimize points, that are too close to each other. used in svg export.
+  List<Point> _optimizePoints(List<Point> input, {double minDistance = 3}) {
+    if (input.isEmpty) {
+      return <Point>[];
+    }
+    final List<Point> optimized = <Point>[input.first];
+
+    for (int i = 1; i < input.length; i++) {
+      final Offset last = optimized.last.offset;
+      final Offset current = input[i].offset;
+      final double dx = current.dx - last.dx;
+      final double dy = current.dy - last.dy;
+
+      if ((dx * dx + dy * dy) >= (minDistance * minDistance)) {
+        optimized.add(input[i]);
+      }
+    }
+    return optimized;
   }
 
   /// Converts color to its hex representation without alpha
@@ -595,6 +622,13 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// Export the current content to a SVG graphic.
   /// Will return `null` if there are no points.
-  svg.SvgPicture? toSVG({int? width, int? height}) =>
-      isEmpty ? null : svg.SvgPicture.string(toRawSVG(width: width, height: height)!);
+  /// [width] Canvas width to use
+  /// [height] Canvas height to use
+  /// [minDistanceBetweenPoints] Minimal distance between points to be included in svg. Used to reduce svg output size.
+  svg.SvgPicture? toSVG({int? width, int? height, double minDistanceBetweenPoints = 3}) =>
+      isEmpty
+          ? null
+          : svg.SvgPicture.string(
+            toRawSVG(width: width, height: height, minDistanceBetweenPoints: minDistanceBetweenPoints)!,
+          );
 }

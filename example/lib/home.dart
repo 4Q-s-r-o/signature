@@ -59,7 +59,6 @@ class _HomeState extends State<Home> {
     if (data == null) {
       return;
     }
-
     if (!context.mounted) return;
 
     await push(
@@ -88,6 +87,16 @@ class _HomeState extends State<Home> {
       );
       return;
     }
+    String? rawSVGoptimized = _controller.toRawSVG();
+    String? rawSVGnonoptimized = _controller.toRawSVG(minDistanceBetweenPoints: 0);
+    debugPrint('Raw svg without optimalizations: ');
+    printLongString(rawSVGnonoptimized);
+    debugPrint("----");
+    debugPrint('size is: ${rawSVGnonoptimized?.length ?? 0} chars long');
+    debugPrint('Raw svg with optimalizations: ');
+    printLongString(rawSVGoptimized);
+    debugPrint("----");
+    debugPrint('size is: ${rawSVGoptimized?.length ?? 0} chars long');
 
     final SvgPicture data = _controller.toSVG()!;
 
