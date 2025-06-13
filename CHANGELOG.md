@@ -1,3 +1,6 @@
+## 6.2.1
+* Fixed laggy paints with some settings
+
 ## 6.2.0
 * Reworked SVG export to stop abusing undo / redo stack for svg export. This solves the problem with svg export after initializing controller with points
 * Optimized svg export to exclude points that are too close to each other. The default value is "3," but can be overriden in export parameters.

@@ -233,12 +233,18 @@ class _SignaturePainter extends CustomPainter {
     if (points.isEmpty) {
       return;
     }
-    for (int i = 0; i < (points.length - 1); i++) {
-      if (points[i + 1].type == PointType.move) {
-        _penStyle.strokeWidth *= points[i].pressure;
-        canvas.drawLine(points[i].offset, points[i + 1].offset, _penStyle);
+    final List<List<Point>> strokes = _controller.pointsToStrokes(3);
+    for (List<Point> stroke in strokes) {
+      if (stroke.length > 1) {
+        for (int i = 0; i < (stroke.length - 1); i++) {
+          _penStyle.strokeWidth *= stroke[i].pressure;
+          canvas.drawLine(stroke[i].offset, stroke[i + 1].offset, _penStyle);
+          if(_penStyle.strokeWidth > 2) {
+            canvas.drawCircle(stroke[i].offset, (_penStyle.strokeWidth / 2) * stroke[i].pressure, _penStyle);
+          }
+        }
       } else {
-        canvas.drawCircle(points[i].offset, (_penStyle.strokeWidth / 2) * points[i].pressure, _penStyle);
+        canvas.drawCircle(stroke.first.offset, (_penStyle.strokeWidth / 2) * stroke.first.pressure, _penStyle);
       }
     }
   }
@@ -547,22 +553,7 @@ class SignatureController extends ValueNotifier<List<Point>> {
     String formatPoint(Point p) => '${p.offset.dx.toStringAsFixed(2)},${p.offset.dy.toStringAsFixed(2)}';
 
     final StringBuffer svg = StringBuffer('<svg viewBox="0 0 $width $height" xmlns="http://www.w3.org/2000/svg">');
-    final List<List<Point>> strokes = <List<Point>>[];
-    List<Point> currentStroke = <Point>[];
-    for (final Point point in _optimizePoints(points, minDistance: minDistanceBetweenPoints)) {
-      if (point.type == PointType.move) {
-        currentStroke.add(point);
-      } else {
-        if (currentStroke.isNotEmpty) {
-          strokes.add(currentStroke);
-          currentStroke = <Point>[];
-        }
-        currentStroke.add(point);
-      }
-    }
-    if (currentStroke.isNotEmpty) {
-      strokes.add(currentStroke);
-    }
+    final List<List<Point>> strokes = pointsToStrokes(minDistanceBetweenPoints);
     for (List<Point> stroke in strokes) {
       final List<Point> translatedStroke = _translatePoints(stroke);
       if (stroke.length > 1) {
@@ -572,7 +563,8 @@ class SignatureController extends ValueNotifier<List<Point>> {
           'stroke="${_colorToHex(exportPenColor ?? penColor)}" '
           'stroke-opacity="${_colorToOpacity(exportPenColor ?? penColor)}" '
           'points="${translatedStroke.map(formatPoint).join(' ')}" '
-          'stroke-linecap="round" '
+          'stroke-linecap="${strokeCap.name}" '
+          'stroke-linejoin="${strokeJoin.name}" '
           'stroke-width="$penStrokeWidth" '
           '/>',
         );
@@ -589,6 +581,27 @@ class SignatureController extends ValueNotifier<List<Point>> {
     }
     svg.writeln('</svg>');
     return svg.toString();
+  }
+
+  /// Helper method to convert points to strokes
+  List<List<Point>> pointsToStrokes(double minDistanceBetweenPoints) {
+    final List<List<Point>> strokes = <List<Point>>[];
+    List<Point> currentStroke = <Point>[];
+    for (final Point point in _optimizePoints(points, minDistance: minDistanceBetweenPoints)) {
+      if (point.type == PointType.move) {
+        currentStroke.add(point);
+      } else {
+        if (currentStroke.isNotEmpty) {
+          strokes.add(currentStroke);
+          currentStroke = <Point>[];
+        }
+        currentStroke.add(point);
+      }
+    }
+    if (currentStroke.isNotEmpty) {
+      strokes.add(currentStroke);
+    }
+    return strokes;
   }
 
   /// Util function to optimize points, that are too close to each other. used in svg export.

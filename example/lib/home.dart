@@ -16,7 +16,9 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   // initialize the signature controller
   final SignatureController _controller = SignatureController(
-    penStrokeWidth: 1,
+    penStrokeWidth: 5,
+    strokeCap: StrokeCap.butt,
+    strokeJoin: StrokeJoin.miter,
     penColor: Colors.red,
     exportBackgroundColor: Colors.transparent,
     exportPenColor: Colors.black,
