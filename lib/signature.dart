@@ -18,6 +18,7 @@ class Signature extends StatefulWidget {
     this.dynamicPressureSupported = false,
     this.width,
     this.height,
+    this.placeholder,
   }) : super(key: key);
 
   /// signature widget controller
@@ -34,6 +35,9 @@ class Signature extends StatefulWidget {
 
   /// support dynamic pressure for width (if has support for it)
   final bool dynamicPressureSupported;
+
+  /// widget shown if pad is empty
+  final Widget? placeholder;
 
   @override
   State createState() => SignatureState();
@@ -75,55 +79,68 @@ class SignatureState extends State<Signature> {
           // MEDIA QUERY DOES NOT WORK BECAUSE IT RETURNS SCREEN SIZE, NOT
           // PARENT WIDGET SIZE
           screenSize = boxConstraints.biggest;
-          return Container(
-            decoration: BoxDecoration(color: widget.backgroundColor),
-            child: Listener(
-              onPointerDown: (PointerDownEvent event) {
-                if (!widget.controller.disabled && (activePointerId == null || activePointerId == event.pointer)) {
-                  activePointerId = event.pointer;
-                  widget.controller.onDrawStart?.call();
-                  _addPoint(event, PointType.tap);
-                }
-              },
-              onPointerUp: (PointerUpEvent event) {
-                _ensurePointerCleanup();
-                if (activePointerId == event.pointer) {
-                  _addPoint(event, PointType.tap);
-                  widget.controller.pushCurrentStateToUndoStack();
-                  widget.controller.onDrawEnd?.call();
-                  activePointerId = null;
-                }
-              },
-              onPointerCancel: (PointerCancelEvent event) {
-                _ensurePointerCleanup();
-                if (activePointerId == event.pointer) {
-                  _addPoint(event, PointType.tap);
-                  widget.controller.pushCurrentStateToUndoStack();
-                  widget.controller.onDrawEnd?.call();
-                  activePointerId = null;
-                }
-              },
-              onPointerMove: (PointerMoveEvent event) {
-                _ensurePointerCleanup();
-                if (activePointerId == event.pointer) {
-                  _addPoint(event, PointType.move);
-                  widget.controller.onDrawMove?.call();
-                }
-              },
-              child: RepaintBoundary(
-                child: CustomPaint(
-                  painter: _SignaturePainter(widget.controller),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: maxWidth,
-                      minHeight: maxHeight,
-                      maxWidth: maxWidth,
-                      maxHeight: maxHeight,
+          return Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(color: widget.backgroundColor),
+                child: Listener(
+                  onPointerDown: (PointerDownEvent event) {
+                    if (!widget.controller.disabled && (activePointerId == null || activePointerId == event.pointer)) {
+                      activePointerId = event.pointer;
+                      widget.controller.onDrawStart?.call();
+                      _addPoint(event, PointType.tap);
+                    }
+                  },
+                  onPointerUp: (PointerUpEvent event) {
+                    _ensurePointerCleanup();
+                    if (activePointerId == event.pointer) {
+                      _addPoint(event, PointType.tap);
+                      widget.controller.pushCurrentStateToUndoStack();
+                      widget.controller.onDrawEnd?.call();
+                      activePointerId = null;
+                    }
+                  },
+                  onPointerCancel: (PointerCancelEvent event) {
+                    _ensurePointerCleanup();
+                    if (activePointerId == event.pointer) {
+                      _addPoint(event, PointType.tap);
+                      widget.controller.pushCurrentStateToUndoStack();
+                      widget.controller.onDrawEnd?.call();
+                      activePointerId = null;
+                    }
+                  },
+                  onPointerMove: (PointerMoveEvent event) {
+                    _ensurePointerCleanup();
+                    if (activePointerId == event.pointer) {
+                      _addPoint(event, PointType.move);
+                      widget.controller.onDrawMove?.call();
+                    }
+                  },
+                  child: RepaintBoundary(
+                    child: CustomPaint(
+                      painter: _SignaturePainter(widget.controller),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: maxWidth,
+                          minHeight: maxHeight,
+                          maxWidth: maxWidth,
+                          maxHeight: maxHeight,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+              AnimatedBuilder(
+                animation: widget.controller,
+                builder: (BuildContext context, Widget? child) {
+                  return widget.placeholder != null && widget.controller.value.isEmpty
+                      ? widget.placeholder!
+                      : const SizedBox.shrink();
+                },
+              )
+            ],
           );
         },
       ),
