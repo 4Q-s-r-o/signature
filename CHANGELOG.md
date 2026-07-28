@@ -1,3 +1,6 @@
+## 6.4.0
+* Ability to provide placeholder for signature pad (Matis2000)
+
 ## 6.3.0
 * Unified web implementation with standard native as Image.toByteData is at now available for web resulting in more performant export and higher image quality
 * Fixed laggy paints with some settings
