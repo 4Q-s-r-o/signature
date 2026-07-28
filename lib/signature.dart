@@ -141,7 +141,7 @@ class SignatureState extends State<Signature> {
                         : const SizedBox.shrink();
                   },
                 ),
-              )
+              ),
             ],
           );
         },
