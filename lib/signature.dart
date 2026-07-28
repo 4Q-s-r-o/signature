@@ -132,13 +132,15 @@ class SignatureState extends State<Signature> {
                   ),
                 ),
               ),
-              AnimatedBuilder(
-                animation: widget.controller,
-                builder: (BuildContext context, Widget? child) {
-                  return widget.placeholder != null && widget.controller.value.isEmpty
-                      ? widget.placeholder!
-                      : const SizedBox.shrink();
-                },
+              IgnorePointer(
+                child: AnimatedBuilder(
+                  animation: widget.controller,
+                  builder: (BuildContext context, Widget? child) {
+                    return widget.placeholder != null && widget.controller.value.isEmpty
+                        ? widget.placeholder!
+                        : const SizedBox.shrink();
+                  },
+                ),
               )
             ],
           );

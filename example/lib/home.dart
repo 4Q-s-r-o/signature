@@ -139,6 +139,11 @@ class _HomeState extends State<Home> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Signature(
+              placeholder: Text('Sign here',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge!
+                      .copyWith(color: Colors.red)),
               key: const Key('signature'),
               controller: _controller,
               height: 300,
